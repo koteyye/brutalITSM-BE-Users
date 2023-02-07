@@ -1,0 +1,10 @@
+POST http://localhost:8081/users
+Content-Type: application/json
+
+{}
+###
+
+PUT http://localhost:8081/users/1
+Content-Type: application/json
+
+{}
