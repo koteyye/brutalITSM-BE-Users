@@ -3,7 +3,7 @@
 ## User-service
 
 ## REST API
-Сервис для хранения информации о пользователях и логирования в Brutal-ITSM https://github.com/koteyye/brutalITSM
+Сервис для хранения информации о пользователях в Brutal-ITSM https://github.com/koteyye/brutalITSM
 
 ## Methods
 * GET /users -- list of users
