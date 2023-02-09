@@ -15,10 +15,10 @@ const (
 )
 
 type handler struct {
-	logger logging.Logger
+	logger *logging.Logger
 }
 
-func NewHandler(logger logging.Logger) handlers.Handler {
+func NewHandler(logger *logging.Logger) handlers.Handler {
 	return &handler{
 		logger: logger,
 	}
@@ -35,7 +35,7 @@ func (h *handler) Register(router *httprouter.Router) {
 
 func (h *handler) GetList(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	h.logger.Info()
-	w.Write([]byte("this is list of users"))
+	w.Write([]byte("Ну типа я такой выдаю всякую хуйню"))
 }
 
 func (h *handler) CreateUser(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
