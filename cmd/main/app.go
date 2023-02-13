@@ -3,7 +3,10 @@ package main
 import (
 	"brutalITSM-BE-Users/internal/config"
 	"brutalITSM-BE-Users/internal/user"
+	user2 "brutalITSM-BE-Users/internal/user/db"
+	"brutalITSM-BE-Users/pkg/client/postgresql"
 	"brutalITSM-BE-Users/pkg/logging"
+	"context"
 	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"net"
@@ -20,6 +23,22 @@ func main() {
 	router := httprouter.New()
 
 	cfg := config.GetConfig()
+
+	postgreSQLClient, err := postgresql.NewClient(context.TODO(), 3, cfg.Storage)
+	if err != nil {
+		logger.Fatalf("%v", err)
+	}
+	repository := user2.NewRepository(postgreSQLClient, logger)
+
+	newAth := user.User{
+		Login:    "",
+		Password: "",
+	}
+	err = repository.Create(context.TODO(), &newAth)
+	if err != nil {
+		logger.Fatalf("%v", err)
+	}
+	logger.Infof("%v", err)
 
 	logger.Info("register user handler")
 	handler := user.NewHandler(logger)
