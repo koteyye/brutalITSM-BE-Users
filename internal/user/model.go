@@ -7,6 +7,7 @@ type Person struct {
 	MiddleName string `json:"middleName"`
 	JobName    string `json:"jobName"`
 	OrgName    string `json:"orgName"`
+	UserId     string `json:"userId"`
 }
 
 type User struct {

@@ -30,15 +30,28 @@ func main() {
 	}
 	repository := user2.NewRepository(postgreSQLClient, logger)
 
-	newAth := user.User{
-		Login:    "",
-		Password: "",
+	newUser := user.User{
+		Login:    "Egorka",
+		Password: "12345",
 	}
-	err = repository.Create(context.TODO(), &newAth)
+	err = repository.Create(context.TODO(), &newUser)
 	if err != nil {
 		logger.Fatalf("%v", err)
+	} else {
+		newPerson := user.Person{
+			FirstName:  "Егорка",
+			LastName:   "Аналитиков",
+			MiddleName: "",
+			JobName:    "Аналитик",
+			OrgName:    "Анал-литическая",
+			UserId:     newUser.ID,
+		}
+		err = repository.CreatePerson(context.TODO(), &newPerson)
+		if err != nil {
+			logger.Fatalf("%v", err)
+		}
+		logger.Infof("NewUser: %v NewPerson: %v", newUser, newPerson)
 	}
-	logger.Infof("%v", err)
 
 	logger.Info("register user handler")
 	handler := user.NewHandler(logger)
