@@ -15,7 +15,8 @@ const (
 )
 
 type handler struct {
-	logger *logging.Logger
+	logger     *logging.Logger
+	repository Repository
 }
 
 func NewHandler(logger *logging.Logger) handlers.Handler {
@@ -26,7 +27,7 @@ func NewHandler(logger *logging.Logger) handlers.Handler {
 
 func (h *handler) Register(router *httprouter.Router) {
 	router.GET(usersURL, h.GetList)
-	router.POST(usersURL, h.CreateUser)
+	router.POST(usersURL, h.Create)
 	router.GET(userURL, h.GetUserByUUID)
 	router.PUT(userURL, h.UpdateUser)
 	router.PATCH(userURL, h.PartiallyUpdateUser)
@@ -34,12 +35,11 @@ func (h *handler) Register(router *httprouter.Router) {
 }
 
 func (h *handler) GetList(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	h.logger.Info()
-	w.Write([]byte("Ну типа я такой выдаю всякую хуйню"))
+
 }
 
-func (h *handler) CreateUser(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	w.Write([]byte("this is create user"))
+func (h *handler) Create(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+
 }
 
 func (h *handler) GetUserByUUID(w http.ResponseWriter, r *http.Request, params httprouter.Params) {

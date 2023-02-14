@@ -5,6 +5,7 @@ import (
 	"brutalITSM-BE-Users/pkg/client/postgresql"
 	"brutalITSM-BE-Users/pkg/logging"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/jackc/pgconn"
 	"strings"
@@ -19,7 +20,7 @@ func formatQuery(q string) string {
 	return strings.ReplaceAll(strings.ReplaceAll(q, "\t", ""), "\n", " ")
 }
 
-func (r *repository) Create(ctx context.Context, user *user.User) error {
+func (r *repository) Create(ctx context.Context, user *user.User, person *user.Person) error {
 
 	q := `
 	INSERT INTO
@@ -29,22 +30,7 @@ func (r *repository) Create(ctx context.Context, user *user.User) error {
 	RETURNING id
 	`
 
-	r.logger.Trace(fmt.Sprintf("SQL Query: %s", q))
-	if err := r.client.QueryRow(ctx, q, user.Login, user.Password).Scan(&user.ID); err != nil {
-		if pgErr, ok := err.(*pgconn.PgError); ok {
-			newErr := fmt.Errorf(fmt.Sprintf("SQL Error: %s, Detail: %s, Where: %s, Code: %s, SQLStater: %s", pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()))
-			r.logger.Error(newErr)
-			return nil
-		}
-		r.logger.Info(err)
-		return err
-	}
-
-	return nil
-}
-
-func (r *repository) CreatePerson(ctx context.Context, person *user.Person) error {
-	q := `
+	q2 := `
 	insert into
 		person (last_name, first_name, middle_name, job_name, org_name, user_id)
 	values
@@ -53,14 +39,26 @@ func (r *repository) CreatePerson(ctx context.Context, person *user.Person) erro
 	`
 
 	r.logger.Trace(fmt.Sprintf("SQL Query: %s", q))
-	if err := r.client.QueryRow(ctx, q, person.LastName, person.FirstName, person.MiddleName, person.JobName, person.OrgName, person.UserId).Scan(&person.ID); err != nil {
-		if pgErr, ok := err.(*pgconn.PgError); ok {
+	if err := r.client.QueryRow(ctx, q, user.Login, user.Password).Scan(&user.ID); err != nil {
+		var pgErr *pgconn.PgError
+		if errors.Is(err, pgErr) {
+			pgErr = err.(*pgconn.PgError)
 			newErr := fmt.Errorf(fmt.Sprintf("SQL Error: %s, Detail: %s, Where: %s, Code: %s, SQLStater: %s", pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()))
 			r.logger.Error(newErr)
 			return nil
 		}
-
+		r.logger.Info(err)
 		return err
+	} else {
+		if err := r.client.QueryRow(ctx, q2, person.LastName, person.FirstName, person.MiddleName, person.JobName, person.OrgName, user.ID).Scan(&person.ID); err != nil {
+			var pgErr *pgconn.PgError
+			if errors.Is(err, pgErr) {
+				pgErr = err.(*pgconn.PgError)
+				newErr := fmt.Errorf(fmt.Sprintf("SQL Error: %s, Detail: %s, Where: %s, Code: %s, SQLStater: %s", pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()))
+				r.logger.Error(newErr)
+				return nil
+			}
+		}
 	}
 
 	return nil
