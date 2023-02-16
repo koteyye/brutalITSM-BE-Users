@@ -7,8 +7,9 @@ import (
 )
 
 func (h *Handler) getUsers(c *gin.Context) {
+	logrus.Info("123")
 	id, _ := c.Get(userCtx)
-	logrus.Info(userCtx)
+	logrus.Info(c.Get(userCtx))
 	logrus.Info(id)
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"id": id,
