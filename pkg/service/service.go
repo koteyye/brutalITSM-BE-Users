@@ -10,6 +10,7 @@ type Authorization interface {
 	GenerateToken(login, password string) (string, error)
 	ParseToken(token string) (string, error)
 	CheckLogin(user models.User) (bool, error)
+	CheckRights(userId any, requireRole string) (bool, error)
 }
 
 type List interface {

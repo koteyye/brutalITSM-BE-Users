@@ -9,6 +9,9 @@ import (
 const (
 	authorizationHeader = "Authorization"
 	userCtx             = "userId"
+	roleDefault         = "user"
+	roleExecutor        = "executor"
+	roleAdmin           = "admin"
 )
 
 func (h *Handler) userIdentity(c *gin.Context) {

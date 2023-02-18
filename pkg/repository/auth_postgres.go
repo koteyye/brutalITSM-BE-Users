@@ -4,6 +4,7 @@ import (
 	"brutalITSM-BE-Users/models"
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	"github.com/sirupsen/logrus"
 )
 
 type AuthPostgres struct {
@@ -37,4 +38,28 @@ func (r *AuthPostgres) GetUser(login, password string) (models.User, error) {
 	err := r.db.Get(&user, query, login, password)
 
 	return user, err
+}
+
+func (r *AuthPostgres) CheckRights(userId any) ([]string, error) {
+	logrus.Info(userId)
+	query := fmt.Sprintf("select get_user_roles($1)")
+	rows, err := r.db.Query(query, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	var roleName []string
+	logrus.Info(rows)
+	for rows.Next() {
+		if err := rows.Scan(&roleName); err != nil {
+			return roleName, err
+		}
+	}
+	if err = rows.Err(); err != nil {
+		return roleName, err
+	}
+
+	logrus.Info(roleName)
+
+	return roleName, nil
 }

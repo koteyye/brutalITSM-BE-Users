@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/sirupsen/logrus"
 	"os"
 	"time"
 )
@@ -47,6 +48,20 @@ func (s *AuthService) CreateUser(user models.User) (string, error) {
 	}
 	user.Password = generatePasswordHash(user.Password)
 	return s.repo.CreateUser(user)
+}
+
+func (s *AuthService) CheckRights(userId any, requierRole string) (bool, error) {
+	role, err := s.repo.CheckRights(userId)
+	if err != nil {
+		return true, err
+	}
+	logrus.Info(role)
+	logrus.Info(requierRole)
+	//if role != requierRole {
+	//	return true, errors.New("not rights")
+	//}
+
+	return false, nil
 }
 
 func (s *AuthService) GenerateToken(login, password string) (string, error) {
