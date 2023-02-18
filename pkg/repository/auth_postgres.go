@@ -14,22 +14,20 @@ func NewAuthPostgres(db *sqlx.DB) *AuthPostgres {
 	return &AuthPostgres{db: db}
 }
 
+func (r *AuthPostgres) CheckLogin(login string) (bool, error) {
+	var duplicate bool
+	query := fmt.Sprintf("select (case when (select \"login\" from %s where \"login\" = $1) is null then false else true end\n           );", usersTable)
+	err := r.db.Get(&duplicate, query, login)
+	return duplicate, err
+}
+
 func (r *AuthPostgres) CreateUser(user models.User) (string, error) {
 	var id string
-	var personId string
-	query := fmt.Sprintf("INSERT INTO %s (login, password) VALUES ($1, $2) returning id", usersTable)
-	query2 := fmt.Sprintf("INSERT INTO %s (last_name, first_name, middle_name, job_name, org_name, user_id) VALUES ($1, $2, $3, $4, $5, $6) returning id", personTable)
-
-	row := r.db.QueryRow(query, user.Login, user.Password)
+	query := fmt.Sprintf("select createUser($1, $2, $3, $4, $5, $6, $7, $8, $9);")
+	row := r.db.QueryRow(query, user.Login, user.Password, user.Email, user.Lastname, user.Firstname, user.Middlename, user.Jobname, user.Orgname, user.RoleName)
 	if err := row.Scan(&id); err != nil {
 		return "", err
-	} else {
-		row := r.db.QueryRow(query2, user.Lastname, user.Firstname, user.Middlename, user.Jobname, user.Orgname, id)
-		if err := row.Scan(&personId); err != nil {
-			return "", err
-		}
 	}
-
 	return id, nil
 }
 

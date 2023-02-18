@@ -9,6 +9,7 @@ type Authorization interface {
 	CreateUser(user models.User) (string, error)
 	GenerateToken(login, password string) (string, error)
 	ParseToken(token string) (string, error)
+	CheckLogin(user models.User) (bool, error)
 }
 
 type List interface {

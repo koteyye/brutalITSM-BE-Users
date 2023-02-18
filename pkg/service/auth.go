@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"os"
 	"time"
 )
 
@@ -29,7 +30,21 @@ func NewAuthService(repo repository.Authorization) *AuthService {
 	return &AuthService{repo: repo}
 }
 
+func (s *AuthService) CheckLogin(user models.User) (bool, error) {
+	duplicate, err := s.repo.CheckLogin(user.Login)
+	if err != nil {
+		return false, err
+	}
+	if duplicate == true {
+		return true, errors.New("duplicate login")
+	}
+	return true, nil
+}
+
 func (s *AuthService) CreateUser(user models.User) (string, error) {
+	if user.Email == "" {
+		user.Email = generateEmail(user.Login)
+	}
 	user.Password = generatePasswordHash(user.Password)
 	return s.repo.CreateUser(user)
 }
@@ -76,4 +91,10 @@ func generatePasswordHash(password string) string {
 	hash.Write([]byte(password))
 
 	return fmt.Sprintf("%x", hash.Sum([]byte(salt)))
+}
+
+func generateEmail(login string) string {
+	mailDomainName := os.Getenv("DOMAIN_NAME")
+	result := login + mailDomainName
+	return result
 }

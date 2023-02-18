@@ -6,10 +6,15 @@ import (
 	"net/http"
 )
 
-func (h *Handler) signUp(c *gin.Context) {
+func (h *Handler) createUser(c *gin.Context) {
 
 	var input models.User
 	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	_, err := h.services.CheckLogin(input)
+	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
