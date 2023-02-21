@@ -9,11 +9,11 @@ import (
 const (
 	authorizationHeader = "Authorization"
 	userCtx             = "userId"
-	roleDefault         = "user"
-	roleExecutor        = "executor"
-	roleAdmin           = "admin"
+	requireRole         = "requireRole"
+	duplicateCheck      = "duplicateCheck"
 )
 
+// Идентификация пользователя
 func (h *Handler) userIdentity(c *gin.Context) {
 	header := c.GetHeader(authorizationHeader)
 	if header == "" {
@@ -34,4 +34,37 @@ func (h *Handler) userIdentity(c *gin.Context) {
 	}
 
 	c.Set(userCtx, userId)
+}
+
+// Проверка роли
+func (h *Handler) setRoleUser(c *gin.Context) {
+	c.Set(requireRole, "user")
+}
+
+func (h *Handler) setRoleExecutor(c *gin.Context) {
+	c.Set(requireRole, "executor")
+}
+
+func (h *Handler) setRoleAdmin(c *gin.Context) {
+	c.Set(requireRole, "admin")
+}
+
+func (h *Handler) checkRights(c *gin.Context) {
+	role, ok := c.Get(requireRole)
+	if !ok {
+		newErrorResponse(c, http.StatusInternalServerError, "role not found")
+		return
+	}
+
+	id, ok := c.Get(userCtx)
+	if !ok {
+		newErrorResponse(c, http.StatusInternalServerError, "user id not found")
+		return
+	}
+
+	_, err := h.services.CheckRights(id, role)
+	if err != nil {
+		newErrorResponse(c, http.StatusForbidden, err.Error())
+		return
+	}
 }

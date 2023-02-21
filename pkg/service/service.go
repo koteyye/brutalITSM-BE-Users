@@ -6,23 +6,26 @@ import (
 )
 
 type Authorization interface {
-	CreateUser(user models.User) (string, error)
 	GenerateToken(login, password string) (string, error)
 	ParseToken(token string) (string, error)
-	CheckLogin(user models.User) (bool, error)
-	CheckRights(userId any, requireRole string) (bool, error)
+	CheckRights(userId any, requireRole any) (bool, error)
 }
 
-type List interface {
+type User interface {
+	CreateUser(user models.User) (string, error)
+	DeleteUser(userId string) (bool, error)
+	CheckLogin(user models.User) (bool, error)
+	GetUsers() ([]models.UserList, error)
 }
 
 type Service struct {
 	Authorization
-	List
+	User
 }
 
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
 		Authorization: NewAuthService(repos.Authorization),
+		User:          NewUserService(repos.User),
 	}
 }

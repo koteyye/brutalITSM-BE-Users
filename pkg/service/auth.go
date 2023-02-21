@@ -1,13 +1,11 @@
 package service
 
 import (
-	"brutalITSM-BE-Users/models"
 	"brutalITSM-BE-Users/pkg/repository"
 	"crypto/sha1"
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/sirupsen/logrus"
 	"os"
 	"time"
 )
@@ -31,37 +29,18 @@ func NewAuthService(repo repository.Authorization) *AuthService {
 	return &AuthService{repo: repo}
 }
 
-func (s *AuthService) CheckLogin(user models.User) (bool, error) {
-	duplicate, err := s.repo.CheckLogin(user.Login)
+func (s *AuthService) CheckRights(userId any, requierRole any) (bool, error) {
+
+	role, err := s.repo.CheckRights(userId)
 	if err != nil {
 		return false, err
 	}
-	if duplicate == true {
-		return true, errors.New("duplicate login")
+	for _, i := range role {
+		if i == requierRole || i == "admin" {
+			return true, nil
+		}
 	}
-	return true, nil
-}
-
-func (s *AuthService) CreateUser(user models.User) (string, error) {
-	if user.Email == "" {
-		user.Email = generateEmail(user.Login)
-	}
-	user.Password = generatePasswordHash(user.Password)
-	return s.repo.CreateUser(user)
-}
-
-func (s *AuthService) CheckRights(userId any, requierRole string) (bool, error) {
-	role, err := s.repo.CheckRights(userId)
-	if err != nil {
-		return true, err
-	}
-	logrus.Info(role)
-	logrus.Info(requierRole)
-	//if role != requierRole {
-	//	return true, errors.New("not rights")
-	//}
-
-	return false, nil
+	return false, errors.New("not enough rights")
 }
 
 func (s *AuthService) GenerateToken(login, password string) (string, error) {

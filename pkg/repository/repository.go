@@ -6,22 +6,25 @@ import (
 )
 
 type Authorization interface {
-	CheckLogin(login string) (bool, error)
 	CheckRights(userId any) ([]string, error)
-	CreateUser(user models.User) (string, error)
 	GetUser(login, password string) (models.User, error)
 }
 
-type List interface {
+type User interface {
+	CreateUser(user models.User) (string, error)
+	DeleteUser(userId string) (bool, error)
+	CheckLogin(login string) (bool, error)
+	GetUsers() ([]models.UserList, error)
 }
 
 type Repository struct {
 	Authorization
-	List
+	User
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		Authorization: NewAuthPostgres(db),
+		User:          NewUserPostgres(db),
 	}
 }
