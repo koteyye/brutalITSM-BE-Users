@@ -46,11 +46,13 @@ func (u userPostgres) CheckLogin(login string) (bool, error) {
 }
 
 func (u userPostgres) GetUsers() ([]models.UserList, error) {
-	//var users []models.UserList
+	var users []models.UserList
 
 	query := fmt.Sprintf("select u.id, u.login, last_name, first_name, middle_name, job_name, org_name,\n       (select array_agg(r.name) from roles r join user_roles ur on r.id = ur.role_id where ur.user_id = u.id) rolelist\nfrom \"user\" u\njoin person p on p.user_id = u.id;")
-	result, err := u.db.Exec(query)
-	logrus.Info(result)
+	if err := u.db.Select(&users, query); err != nil {
+		return nil, err
+	}
+	logrus.Info(users)
 
-	return nil, err
+	return users, nil
 }

@@ -22,5 +22,5 @@ type UserList struct {
 	Middlename string   `json:"middlename" db:"middle_name"`
 	Jobname    string   `json:"jobname" db:"job_name"`
 	Orgname    string   `json:"orgname" db:"org_name"`
-	RolesList  []string `json:"roleList"`
+	RolesList  []string `json:"roleList" db:"roleList"`
 }
