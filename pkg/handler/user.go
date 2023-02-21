@@ -10,6 +10,22 @@ func (h *Handler) getUsers(c *gin.Context) {
 	result, err := h.services.GetUsers()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
+
+func (h *Handler) getUserById(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		newErrorResponse(c, http.StatusBadRequest, "invalid is param")
+		return
+	}
+	result, err := h.services.GetUserById(id)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	c.JSON(http.StatusOK, result)
@@ -55,9 +71,5 @@ func (h *Handler) deleteUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, result)
-
-}
-
-func (h *Handler) getUserById(c *gin.Context) {
 
 }

@@ -1,5 +1,7 @@
 package models
 
+import "github.com/lib/pq"
+
 type User struct {
 	Id         string `json:"-" db:"id"`
 	Login      string `json:"login" binding:"required"`
@@ -15,12 +17,12 @@ type User struct {
 }
 
 type UserList struct {
-	Id         string   `json:"id" db:"id"`
-	Login      string   `json:"login" db:"login"`
-	Lastname   string   `json:"lastname" db:"last_name"`
-	Firstname  string   `json:"firstname" db:"first_name"`
-	Middlename string   `json:"middlename" db:"middle_name"`
-	Jobname    string   `json:"jobname" db:"job_name"`
-	Orgname    string   `json:"orgname" db:"org_name"`
-	RolesList  []string `json:"roleList" db:"roleList"`
+	Id         string         `json:"id" db:"id"`
+	Login      string         `json:"login" db:"login"`
+	Lastname   string         `json:"lastname" db:"last_name"`
+	Firstname  string         `json:"firstname" db:"first_name"`
+	Middlename string         `json:"middlename" db:"middle_name"`
+	Jobname    string         `json:"jobname" db:"job_name"`
+	Orgname    string         `json:"orgname" db:"org_name"`
+	RolesList  pq.StringArray `json:"roleList" db:"role_list"`
 }

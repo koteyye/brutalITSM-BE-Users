@@ -15,6 +15,7 @@ type User interface {
 	DeleteUser(userId string) (bool, error)
 	CheckLogin(login string) (bool, error)
 	GetUsers() ([]models.UserList, error)
+	GetUserById(userId string) (models.UserList, error)
 }
 
 type Repository struct {

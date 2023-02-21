@@ -43,3 +43,7 @@ func (u *UserService) DeleteUser(userId string) (bool, error) {
 func (u *UserService) GetUsers() ([]models.UserList, error) {
 	return u.repo.GetUsers()
 }
+
+func (u *UserService) GetUserById(userId string) (models.UserList, error) {
+	return u.repo.GetUserById(userId)
+}

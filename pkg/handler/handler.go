@@ -26,7 +26,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		users := api.Group("/users")
 		{
 			users.GET("/", h.setRoleAdmin, h.checkRights, h.getUsers)
-			users.GET("/:id", h.getUserById)
+			users.GET("/:id", h.setRoleAdmin, h.checkRights, h.getUserById)
 			users.POST("/create", h.setRoleAdmin, h.checkRights, h.createUser)
 			users.DELETE("/delete/:id", h.setRoleAdmin, h.checkRights, h.deleteUser)
 		}

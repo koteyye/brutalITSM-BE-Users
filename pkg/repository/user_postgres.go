@@ -4,7 +4,6 @@ import (
 	"brutalITSM-BE-Users/models"
 	"fmt"
 	"github.com/jmoiron/sqlx"
-	"github.com/sirupsen/logrus"
 )
 
 type userPostgres struct {
@@ -48,11 +47,17 @@ func (u userPostgres) CheckLogin(login string) (bool, error) {
 func (u userPostgres) GetUsers() ([]models.UserList, error) {
 	var users []models.UserList
 
-	query := fmt.Sprintf("select u.id, u.login, last_name, first_name, middle_name, job_name, org_name,\n       (select array_agg(r.name) from roles r join user_roles ur on r.id = ur.role_id where ur.user_id = u.id) rolelist\nfrom \"user\" u\njoin person p on p.user_id = u.id;")
-	if err := u.db.Select(&users, query); err != nil {
-		return nil, err
-	}
-	logrus.Info(users)
+	query := fmt.Sprintf("select u.id, u.login, last_name, first_name, middle_name, job_name, org_name,\n       (select array_agg(r.name) from roles r join user_roles ur on r.id = ur.role_id where ur.user_id = u.id) role_list\nfrom \"user\" u\njoin person p on p.user_id = u.id;")
+	err := u.db.Select(&users, query)
 
-	return users, nil
+	return users, err
+}
+
+func (u userPostgres) GetUserById(userId string) (models.UserList, error) {
+	var user models.UserList
+
+	query := fmt.Sprintf("select u.id, u.login, last_name, first_name, middle_name, job_name, org_name,\n       (select array_agg(r.name) from roles r join user_roles ur on r.id = ur.role_id where ur.user_id = u.id) role_list\nfrom \"user\" u\njoin person p on p.user_id = u.id\nwhere u.id = $1;")
+	err := u.db.Get(&user, query, userId)
+
+	return user, err
 }
