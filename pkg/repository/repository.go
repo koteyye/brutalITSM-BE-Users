@@ -8,6 +8,7 @@ import (
 type Authorization interface {
 	CheckRights(userId any) ([]string, error)
 	GetUser(login, password string) (models.User, error)
+	Me(userId any) (models.UserList, error)
 }
 
 type User interface {

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"brutalITSM-BE-Users/models"
 	"brutalITSM-BE-Users/pkg/repository"
 	"crypto/sha1"
 	"errors"
@@ -78,6 +79,10 @@ func (s *AuthService) ParseToken(accessToken string) (string, error) {
 	}
 
 	return claims.UserId, nil
+}
+
+func (s *AuthService) Me(id any) (models.UserList, error) {
+	return s.repo.Me(id)
 }
 
 func generatePasswordHash(password string) string {

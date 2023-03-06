@@ -30,3 +30,18 @@ func (h *Handler) signIn(c *gin.Context) {
 	})
 
 }
+
+func (h *Handler) me(c *gin.Context) {
+	id, ok := c.Get(userCtx)
+	if !ok {
+		newErrorResponse(c, http.StatusUnauthorized, "user unauthorized")
+		return
+	}
+
+	user, err := h.services.Authorization.Me(id)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+	}
+
+	c.JSON(http.StatusOK, user)
+}

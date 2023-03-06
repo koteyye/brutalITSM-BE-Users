@@ -30,3 +30,12 @@ func (r *AuthPostgres) CheckRights(userId any) ([]string, error) {
 
 	return roleNames, err
 }
+
+func (r *AuthPostgres) Me(id any) (models.UserList, error) {
+	var user models.UserList
+
+	query := fmt.Sprintf("select u.id, u.login, last_name, first_name, middle_name, job_name, org_name,\n       (select array_agg(r.name) from roles r join user_roles ur on r.id = ur.role_id where ur.user_id = u.id) role_list\nfrom \"user\" u\njoin person p on p.user_id = u.id\nwhere u.id = $1;")
+	err := r.db.Get(&user, query, id)
+
+	return user, err
+}

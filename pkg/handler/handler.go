@@ -16,6 +16,7 @@ func NewHandler(services *service.Service) *Handler {
 }
 
 func (h *Handler) InitRoutes() *gin.Engine {
+	//gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 
 	router.Use(cors.New(cors.Config{
@@ -30,6 +31,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	auth := router.Group("/auth")
 	{
 		auth.POST("/sign-in", h.signIn)
+		auth.GET("/me", h.userIdentity, h.me)
 	}
 
 	api := router.Group("/api", h.userIdentity)
