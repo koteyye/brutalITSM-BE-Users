@@ -4,6 +4,8 @@ drop table user_roles;
 
 drop table roles;
 
+drop table user_img;
+
 drop table "user";
 
 drop function public.defaultrole();

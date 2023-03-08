@@ -1,6 +1,10 @@
 package models
 
-import "github.com/lib/pq"
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/lib/pq"
+)
 
 type User struct {
 	Id         string `json:"-" db:"id"`
@@ -25,4 +29,30 @@ type UserList struct {
 	Jobname    string         `json:"jobname" db:"job_name"`
 	Orgname    string         `json:"orgname" db:"org_name"`
 	RolesList  pq.StringArray `json:"roleList" db:"role_list"`
+	Avatar     *Avatar        `json:"avatar" db:"avatar"`
+}
+
+type Avatar struct {
+	MimeType   string `json:"mimeType"`
+	BacketName string `json:"backetName"`
+	FileName   string `json:"fileName"`
+}
+
+func (s *Avatar) Scan(val any) error {
+	switch v := val.(type) {
+	case []byte:
+		err := json.Unmarshal(v, &s)
+		if err != nil {
+			return err
+		}
+		return nil
+	case string:
+		err := json.Unmarshal([]byte(v), &s)
+		if err != nil {
+			return err
+		}
+		return nil
+	default:
+		return fmt.Errorf("unsupported type: %T", v)
+	}
 }

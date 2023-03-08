@@ -12,6 +12,17 @@ create table "user"
     email      varchar                             not null
 );
 
+create table user_img (
+                          id uuid default uuid_generate_v4() not null primary key,
+                          user_id uuid references "user"(id),
+                          mime_type varchar default 'image' not null,
+                          backet_name varchar not null,
+                          file_name varchar not null,
+                          created_at  timestamp default now() not null,
+                          updated_at  timestamp,
+                          deleted_at  timestamp
+);
+
 create table person
 (
     id          uuid      default uuid_generate_v4() not null
@@ -150,4 +161,4 @@ end;
 insert into roles (name)
 values ('user'), ('executor'), ('admin');
 
-select createUser('admin', '696f396768747265683565726865667364676577726767646663d033e22ae348aeb5660fc2140aec35850c4da997', 'itsm87@mail.ru', 'Admin', 'Admin', 'Admin', 'Admin', 'Admin', 'admin');
+select createUser('admin', '696f396768747265683565726865667364676577726767646663f865b53623b121fd34ee5426c792e5c33af8c227', 'itsm87@mail.ru', 'Admin', 'Admin', 'Admin', 'Admin', 'Admin', 'admin');
