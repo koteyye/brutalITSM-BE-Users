@@ -47,7 +47,7 @@ func (u userPostgres) CheckLogin(login string) (bool, error) {
 func (u userPostgres) GetUsers() ([]models.UserList, error) {
 	var users []models.UserList
 
-	query := fmt.Sprintf("select u.id, u.login, last_name, first_name, middle_name, job_name, org_name,\n       (select array_agg(r.name) from roles r join user_roles ur on r.id = ur.role_id where ur.user_id = u.id) role_list\nfrom \"user\" u\njoin person p on p.user_id = u.id;")
+	query := fmt.Sprintf("select u.id,\n       u.login,\n       p.last_name,\n       p.first_name,\n       p.middle_name,\n       p.job_name,\n       p.org_name,\n       (select array_agg(r.name)\n        from roles r\n                 join user_roles ur on r.id = ur.role_id\n        where ur.user_id = u.id)                                                                              role_list,\n       json_build_object('mimeType', ui.mime_type, 'backetName', ui.backet_name, 'fileName', ui.file_name) avatar\nfrom \"user\" u\n         join person p on u.id = p.user_id\n         left join user_img ui on u.id = ui.user_id;")
 	err := u.db.Select(&users, query)
 
 	return users, err
