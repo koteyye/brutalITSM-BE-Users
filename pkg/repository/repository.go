@@ -13,6 +13,7 @@ type Authorization interface {
 
 type User interface {
 	CreateUser(user models.User) (string, error)
+	CreateUserImg(userId string, user models.Avatar) (bool, error)
 	DeleteUser(userId string) (bool, error)
 	CheckLogin(login string) (bool, error)
 	GetUsers() ([]models.UserList, error)

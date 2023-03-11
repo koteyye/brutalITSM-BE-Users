@@ -9,4 +9,4 @@ db:
 
 
 minio:
-    url: "http://localhost:9000"
+    url: "localhost:9000"

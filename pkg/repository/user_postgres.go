@@ -24,6 +24,15 @@ func (u userPostgres) CreateUser(user models.User) (string, error) {
 	return id, nil
 }
 
+func (u userPostgres) CreateUserImg(userId string, avatar models.Avatar) (bool, error) {
+	query := fmt.Sprintf("insert into user_img(user_id, mime_type, backet_name, file_name)\nvalues ($1, $2, $3, $4);")
+	row := u.db.QueryRow(query, userId, avatar.MimeType, avatar.BacketName, avatar.FileName)
+	if err := row.Err(); err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
 func (u userPostgres) DeleteUser(userId string) (bool, error) {
 	var ok bool
 	query := fmt.Sprintf("select delete_user($1);")

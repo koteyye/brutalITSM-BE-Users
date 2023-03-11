@@ -83,6 +83,7 @@ func (h *Handler) deleteUser(c *gin.Context) {
 
 func (h *Handler) uploadFile(c *gin.Context) {
 	fileHeader, err := c.FormFile("file")
+	userId := c.Param("id")
 
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "No file is received")
@@ -104,10 +105,21 @@ func (h *Handler) uploadFile(c *gin.Context) {
 
 	fileSize := fileHeader.Size
 
-	_, uploadErr := h.services.UploadFile(c, file, bucketName, newFileName, fileSize)
+	_, mimeType, uploadErr := h.services.UploadFile(c, file, bucketName, newFileName, fileSize)
 
 	if uploadErr != nil {
 		newErrorResponse(c, http.StatusInternalServerError, uploadErr.Error())
+	}
+
+	input := models.Avatar{
+		MimeType:   mimeType,
+		BacketName: bucketName,
+		FileName:   newFileName,
+	}
+
+	_, userImgErr := h.services.CreateUserImg(userId, input)
+	if userImgErr != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
 	c.JSON(http.StatusOK, idFile)

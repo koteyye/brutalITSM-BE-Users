@@ -18,11 +18,12 @@ type Authorization interface {
 
 type User interface {
 	CreateUser(user models.User) (string, error)
+	CreateUserImg(userId string, avatar models.Avatar) (bool, error)
 	DeleteUser(userId string) (bool, error)
 	CheckLogin(user models.User) (bool, error)
 	GetUsers() ([]models.UserList, error)
 	GetUserById(userId string) (models.UserList, error)
-	UploadFile(ctx context.Context, reader io.Reader, backetName string, filename string, fileSize int64) (minio.UploadInfo, error)
+	UploadFile(ctx context.Context, reader io.Reader, backetName string, filename string, fileSize int64) (minio.UploadInfo, string, error)
 }
 
 type Service struct {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/gabriel-vasile/mimetype"
 	"io"
 
 	"brutalITSM-BE-Users/models"
@@ -29,14 +30,20 @@ func (u *UserService) CreateUser(user models.User) (string, error) {
 	return u.repo.CreateUser(user)
 }
 
-func (u *UserService) UploadFile(ctx context.Context, reader io.Reader, bucketName, fileName string, fileSize int64) (minio.UploadInfo, error) {
+func (u *UserService) UploadFile(ctx context.Context, reader io.Reader, bucketName, fileName string, fileSize int64) (minio.UploadInfo, string, error) {
 	info, err := u.s3repo.PutObject(ctx, bucketName, fileName, reader, fileSize, minio.PutObjectOptions{})
 
 	if err != nil {
-		return minio.UploadInfo{}, fmt.Errorf("cant upload file to s3")
+		return minio.UploadInfo{}, "", fmt.Errorf("cant upload file to s3")
 	}
 
-	return info, nil
+	mType, err := mimetype.DetectReader(reader)
+
+	return info, mType.String(), nil
+}
+
+func (u *UserService) CreateUserImg(userId string, avatar models.Avatar) (bool, error) {
+	return u.repo.CreateUserImg(userId, avatar)
 }
 
 func (u *UserService) CheckLogin(user models.User) (bool, error) {
