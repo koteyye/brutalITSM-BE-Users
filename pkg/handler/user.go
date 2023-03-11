@@ -90,6 +90,7 @@ func (h *Handler) uploadFile(c *gin.Context) {
 	}
 
 	file, err := fileHeader.Open()
+	defer file.Close()
 
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "Cant open file")
