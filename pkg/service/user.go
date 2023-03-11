@@ -1,12 +1,15 @@
 package service
 
 import (
+	"context"
+	"errors"
+	"fmt"
+	"io"
+
 	"brutalITSM-BE-Users/models"
 	"brutalITSM-BE-Users/pkg/repository"
-	"errors"
 	"github.com/minio/minio-go/v7"
 	"github.com/sirupsen/logrus"
-	"io"
 )
 
 type UserService struct {
@@ -26,8 +29,14 @@ func (u *UserService) CreateUser(user models.User) (string, error) {
 	return u.repo.CreateUser(user)
 }
 
-func (u *UserService) UploadFile(reader io.Reader, backetName string, fileName string) (string, error) {
-	return "", nil
+func (u *UserService) UploadFile(ctx context.Context, reader io.Reader, bucketName, fileName string, fileSize int64) (minio.UploadInfo, error) {
+	info, err := u.s3repo.PutObject(ctx, bucketName, fileName, reader, fileSize, minio.PutObjectOptions{})
+
+	if err != nil {
+		return minio.UploadInfo{}, fmt.Errorf("cant upload file to s3")
+	}
+
+	return info, nil
 }
 
 func (u *UserService) CheckLogin(user models.User) (bool, error) {

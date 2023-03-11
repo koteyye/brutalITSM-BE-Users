@@ -97,14 +97,18 @@ func (h *Handler) uploadFile(c *gin.Context) {
 		return
 	}
 
+	idFile := uuid.New().String()
 	extension := filepath.Ext(fileHeader.Filename)
 
-	newFileName := uuid.New().String() + extension
+	newFileName := idFile + extension
 
-	id, err := h.services.UploadFile(file, bucketName, newFileName)
-	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+	fileSize := fileHeader.Size
+
+	_, uploadErr := h.services.UploadFile(c, file, bucketName, newFileName, fileSize)
+
+	if uploadErr != nil {
+		newErrorResponse(c, http.StatusInternalServerError, uploadErr.Error())
 	}
 
-	c.JSON(http.StatusOK, id)
+	c.JSON(http.StatusOK, idFile)
 }

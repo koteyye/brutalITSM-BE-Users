@@ -1,10 +1,12 @@
 package service
 
 import (
+	"context"
+	"io"
+
 	"brutalITSM-BE-Users/models"
 	"brutalITSM-BE-Users/pkg/repository"
 	"github.com/minio/minio-go/v7"
-	"io"
 )
 
 type Authorization interface {
@@ -20,7 +22,7 @@ type User interface {
 	CheckLogin(user models.User) (bool, error)
 	GetUsers() ([]models.UserList, error)
 	GetUserById(userId string) (models.UserList, error)
-	UploadFile(reader io.Reader, backetName string, filename string) (string, error)
+	UploadFile(ctx context.Context, reader io.Reader, backetName string, filename string, fileSize int64) (minio.UploadInfo, error)
 }
 
 type Service struct {
