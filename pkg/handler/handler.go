@@ -42,6 +42,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			users.GET("/:id", h.setRoleAdmin, h.checkRights, h.getUserById)
 			users.POST("/create", h.setRoleAdmin, h.checkRights, h.createUser)
 			users.DELETE("/delete/:id", h.setRoleAdmin, h.checkRights, h.deleteUser)
+			users.POST("/upload", h.uploadFile)
 		}
 	}
 

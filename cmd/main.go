@@ -7,6 +7,8 @@ import (
 	"brutalITSM-BE-Users/pkg/service"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"os"
@@ -34,8 +36,25 @@ func main() {
 		logrus.Fatalf("faild to initialize db: %s", err.Error())
 	}
 
+	//minio
+	endpoint := viper.GetString("minio.url")
+	accessKeyId := os.Getenv("KEY_ID")
+	secretAccessKey := os.Getenv("SECRET_KEY")
+	useSSL := false
+
+	// Init minio client
+	minioClient, err := minio.New(endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(accessKeyId, secretAccessKey, ""),
+		Secure: useSSL,
+	})
+	if err != nil {
+		logrus.Fatalln(err)
+	}
+
+	logrus.Printf("%#v\n", minioClient) // minio is now set up
+
 	repos := repository.NewRepository(db)
-	services := service.NewService(repos)
+	services := service.NewService(repos, minioClient)
 	handlers := handler.NewHandler(services)
 
 	srv := new(brutalitsm.Server)

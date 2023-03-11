@@ -4,24 +4,30 @@ import (
 	"brutalITSM-BE-Users/models"
 	"brutalITSM-BE-Users/pkg/repository"
 	"errors"
+	"github.com/minio/minio-go/v7"
 	"github.com/sirupsen/logrus"
+	"io"
 )
 
 type UserService struct {
-	repo repository.User
+	repo   repository.User
+	s3repo *minio.Client
 }
 
-func NewUserService(repo repository.User) *UserService {
-	return &UserService{repo: repo}
+func NewUserService(repo repository.User, s3repo *minio.Client) *UserService {
+	return &UserService{repo: repo, s3repo: s3repo}
 }
 
 func (u *UserService) CreateUser(user models.User) (string, error) {
 	if user.Email == "" {
 		user.Email = generateEmail(user.Login)
 	}
-
 	user.Password = generatePasswordHash(user.Password)
 	return u.repo.CreateUser(user)
+}
+
+func (u *UserService) UploadFile(reader io.Reader, backetName string, fileName string) (string, error) {
+	return "", nil
 }
 
 func (u *UserService) CheckLogin(user models.User) (bool, error) {

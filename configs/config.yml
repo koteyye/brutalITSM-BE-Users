@@ -6,3 +6,7 @@ db:
     port: "5436"
     dbname: "brutal-itsm-user"
     sslmode: "disable"
+
+
+minio:
+    url: "http://localhost:9000"

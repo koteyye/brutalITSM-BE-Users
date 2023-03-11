@@ -3,6 +3,8 @@ package service
 import (
 	"brutalITSM-BE-Users/models"
 	"brutalITSM-BE-Users/pkg/repository"
+	"github.com/minio/minio-go/v7"
+	"io"
 )
 
 type Authorization interface {
@@ -18,6 +20,7 @@ type User interface {
 	CheckLogin(user models.User) (bool, error)
 	GetUsers() ([]models.UserList, error)
 	GetUserById(userId string) (models.UserList, error)
+	UploadFile(reader io.Reader, backetName string, filename string) (string, error)
 }
 
 type Service struct {
@@ -25,9 +28,9 @@ type Service struct {
 	User
 }
 
-func NewService(repos *repository.Repository) *Service {
+func NewService(repos *repository.Repository, s3repo *minio.Client) *Service {
 	return &Service{
 		Authorization: NewAuthService(repos.Authorization),
-		User:          NewUserService(repos.User),
+		User:          NewUserService(repos.User, s3repo),
 	}
 }

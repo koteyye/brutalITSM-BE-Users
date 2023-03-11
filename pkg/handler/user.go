@@ -3,7 +3,9 @@ package handler
 import (
 	"brutalITSM-BE-Users/models"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"net/http"
+	"path/filepath"
 )
 
 func (h *Handler) getUsers(c *gin.Context) {
@@ -72,4 +74,24 @@ func (h *Handler) deleteUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, result)
 
+}
+
+func (h *Handler) uploadFile(c *gin.Context) {
+	file, err := c.FormFile("file")
+
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "No file is received")
+		return
+	}
+
+	extension := filepath.Ext(file.Filename)
+
+	newFileName := uuid.New().String() + extension
+
+	id, err := h.services.UploadFile(file)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+	}
+
+	c.JSON(http.StatusOK, id)
 }
