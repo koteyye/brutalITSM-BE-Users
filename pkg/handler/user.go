@@ -38,6 +38,16 @@ func (h *Handler) getUserById(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
+func (h *Handler) getRoles(c *gin.Context) {
+	result, err := h.services.GetRoles()
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
+
 func (h *Handler) createUser(c *gin.Context) {
 	var input models.User
 
@@ -105,7 +115,7 @@ func (h *Handler) uploadFile(c *gin.Context) {
 
 	fileSize := fileHeader.Size
 
-	_, mimeType, uploadErr := h.services.UploadFile(c, file, bucketName, newFileName, fileSize)
+	info, mimeType, uploadErr := h.services.UploadFile(c, file, bucketName, newFileName, fileSize)
 
 	if uploadErr != nil {
 		newErrorResponse(c, http.StatusInternalServerError, uploadErr.Error())
@@ -122,5 +132,5 @@ func (h *Handler) uploadFile(c *gin.Context) {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	c.JSON(http.StatusOK, idFile)
+	c.JSON(http.StatusOK, info.Key)
 }

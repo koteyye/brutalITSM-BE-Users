@@ -43,6 +43,12 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			users.POST("/create", h.setRoleAdmin, h.checkRights, h.createUser)
 			users.DELETE("/delete/:id", h.setRoleAdmin, h.checkRights, h.deleteUser)
 			users.POST("/avatar/upload/:id", h.setRoleAdmin, h.checkRights, h.uploadFile)
+			users.GET("/roles", h.setRoleAdmin, h.checkRights, h.getRoles)
+		}
+		search := api.Group("/search")
+		{
+			search.GET("/job/:jobName", h.setRoleAdmin, h.checkRights, h.searchJob)
+			search.GET("/org/:orgName", h.setRoleAdmin, h.checkRights, h.searchOrg)
 		}
 	}
 

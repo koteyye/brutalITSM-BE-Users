@@ -24,16 +24,24 @@ type User interface {
 	GetUsers() ([]models.UserList, error)
 	GetUserById(userId string) (models.UserList, error)
 	UploadFile(ctx context.Context, reader io.Reader, backetName string, filename string, fileSize int64) (minio.UploadInfo, string, error)
+	GetRoles() ([]string, error)
+}
+
+type Search interface {
+	SearchJob(string) ([]string, error)
+	SearchOrg(string) ([]string, error)
 }
 
 type Service struct {
 	Authorization
 	User
+	Search
 }
 
 func NewService(repos *repository.Repository, s3repo *minio.Client) *Service {
 	return &Service{
 		Authorization: NewAuthService(repos.Authorization),
 		User:          NewUserService(repos.User, s3repo),
+		Search:        NewSearchService(repos.Search),
 	}
 }

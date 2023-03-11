@@ -18,16 +18,24 @@ type User interface {
 	CheckLogin(login string) (bool, error)
 	GetUsers() ([]models.UserList, error)
 	GetUserById(userId string) (models.UserList, error)
+	GetRoles() ([]string, error)
+}
+
+type Search interface {
+	SearchJob(string) ([]string, error)
+	SearchOrg(string) ([]string, error)
 }
 
 type Repository struct {
 	Authorization
 	User
+	Search
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		Authorization: NewAuthPostgres(db),
 		User:          NewUserPostgres(db),
+		Search:        NewSearchPostgres(db),
 	}
 }

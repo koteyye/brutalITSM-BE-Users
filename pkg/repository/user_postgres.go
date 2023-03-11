@@ -70,3 +70,12 @@ func (u userPostgres) GetUserById(userId string) (models.UserList, error) {
 
 	return user, err
 }
+
+func (u userPostgres) GetRoles() ([]string, error) {
+	var roles []string
+
+	query := fmt.Sprintf("select name from roles")
+	err := u.db.Select(&roles, query)
+
+	return roles, err
+}

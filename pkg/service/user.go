@@ -69,3 +69,7 @@ func (u *UserService) GetUsers() ([]models.UserList, error) {
 func (u *UserService) GetUserById(userId string) (models.UserList, error) {
 	return u.repo.GetUserById(userId)
 }
+
+func (u *UserService) GetRoles() ([]string, error) {
+	return u.repo.GetRoles()
+}
