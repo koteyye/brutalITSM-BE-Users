@@ -1,11 +1,16 @@
 package handler
 
 import (
+	"net/http"
+	"path/filepath"
+
 	"brutalITSM-BE-Users/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"net/http"
-	"path/filepath"
+)
+
+const (
+	bucketName = "avatars"
 )
 
 func (h *Handler) getUsers(c *gin.Context) {
@@ -77,18 +82,25 @@ func (h *Handler) deleteUser(c *gin.Context) {
 }
 
 func (h *Handler) uploadFile(c *gin.Context) {
-	file, err := c.FormFile("file")
+	fileHeader, err := c.FormFile("file")
 
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "No file is received")
 		return
 	}
 
-	extension := filepath.Ext(file.Filename)
+	file, err := fileHeader.Open()
+
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "Cant open file")
+		return
+	}
+
+	extension := filepath.Ext(fileHeader.Filename)
 
 	newFileName := uuid.New().String() + extension
 
-	id, err := h.services.UploadFile(file)
+	id, err := h.services.UploadFile(file, bucketName, newFileName)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
