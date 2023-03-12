@@ -26,7 +26,6 @@ func (u *UserService) CreateUser(user models.User) (string, error) {
 	if user.Email == "" {
 		user.Email = generateEmail(user.Login)
 	}
-	user.Password = generatePasswordHash(user.Password)
 	return u.repo.CreateUser(user)
 }
 
