@@ -1,0 +1,27 @@
+syntax="proto3";
+
+option go_package = "./proto";
+
+package user_service;
+
+service UserService{
+  rpc GetUserByToken(RequestToken) returns (ResponseUser);
+}
+
+message RequestToken{
+  string token=1;
+}
+
+message ResponseUser{
+  string id=1;
+  string login=2;
+  string lastName=3;
+  string firstName=4;
+  string middleName=5;
+  string job=6;
+  string org=7;
+  repeated string roles=8;
+  string avatarMimeType=9;
+  string avatarBucketName=10;
+  string avatarFileName=11;
+}

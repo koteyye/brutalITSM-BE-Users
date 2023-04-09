@@ -1,0 +1,12 @@
+port: "8080"
+
+db:
+  username: "brutal"
+  host: "localhost"
+  port: "5436"
+  dbname: "brutal-itsm-user"
+  sslmode: "disable"
+
+
+minio:
+  url: "localhost:9000"
