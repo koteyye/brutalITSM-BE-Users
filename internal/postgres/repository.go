@@ -17,6 +17,6 @@ type Repository struct {
 	Search
 }
 
-func NewRepositry(db *sqlx.DB) *Repository {
+func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{}
 }

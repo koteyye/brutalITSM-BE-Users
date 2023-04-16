@@ -9,35 +9,23 @@ import (
 	brutalitsm "github.com/koteyye/brutalITSM-BE-Users/server"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"os"
 )
 
 func main() {
 	logrus.SetFormatter(new(logrus.JSONFormatter))
-	if err := initConfig; err != nil {
-		logrus.Fatalf("Error initialization postgres configs: %s", err.Error())
+	if err := initConfig(); err != nil {
+		logrus.Fatalf("error initializing configs: %s", err.Error())
 	}
 	if err := godotenv.Load(); err != nil {
-		logrus.Fatalf("Error loading env postgres variables %s", err.Error())
+		logrus.Fatalf("Error loading env variables %s", err.Error())
 	}
 	// Postgres Client
-	db, err := postgres.NewPostgresDB(postgres.Config{
-		Host:     viper.GetString("db.host"),
-		Port:     viper.GetString("db.port"),
-		Username: viper.GetString("db.username"),
-		Password: os.Getenv("DB_PASSWORD"),
-		DBName:   viper.GetString("db.dbname"),
-		SSLMode:  viper.GetString("db.sslmode"),
-	})
-
-	if err != nil {
-		logrus.Fatalf("faild to initialize db: %s", err.Error())
-	}
+	db, _ := postgres.InitPostgres()
 	// Minio Client
 	minio, _ := s3.InitMinioClient()
 
 	//init internal
-	repos := postgres.NewRepositry(db)
+	repos := postgres.NewRepository(db)
 	services := service.NewService(repos, minio)
 	handler := http.NewHttp(services)
 
@@ -55,6 +43,5 @@ func main() {
 func initConfig() error {
 	viper.AddConfigPath("server")
 	viper.SetConfigName("config")
-	viper.SetConfigType("yml")
 	return viper.ReadInConfig()
 }

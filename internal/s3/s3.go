@@ -2,6 +2,7 @@ package s3
 
 import (
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/sirupsen/logrus"
