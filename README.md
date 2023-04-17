@@ -1,6 +1,6 @@
 # Brutal-ITSM-Users
 Микросервис для хранения пользователей и авторизации в brutal itsm
-[![logo](https://github.com/koteyye/brutal-itsm-fe/blob/master/public/logoend.png?raw=true "logo")](https://github.com/koteyye/brutal-itsm-fe/blob/master/public/logoend.png?raw=true "logo")
+[<img alt="logo" height="500px" src="https://github.com/koteyye/brutal-itsm-fe/blob/master/public/logoend.png?raw=true" title="logo" width="500px"/>](https://github.com/koteyye/brutal-itsm-fe/blob/master/public/logoend.png?raw=true "logo")
 ## REST
 ### AUTH
 - **POST /auth/sign-in**  - получить JWT;
