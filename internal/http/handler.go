@@ -7,15 +7,15 @@ import (
 	"time"
 )
 
-type Http struct {
+type Handler struct {
 	services *service.Service
 }
 
-func NewHttp(services *service.Service) *Http {
-	return &Http{services: services}
+func NewHttp(services *service.Service) *Handler {
+	return &Handler{services: services}
 }
 
-func (h *Http) InitRoutes() *gin.Engine {
+func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
 
 	router.Use(cors.New(cors.Config{
@@ -26,6 +26,30 @@ func (h *Http) InitRoutes() *gin.Engine {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
+
+	auth := router.Group("/auth")
+	{
+		auth.POST("/sign-in", h.signIn)
+		auth.GET("/me", h.userIdentity, h.me)
+	}
+
+	api := router.Group("/api", h.userIdentity)
+	{
+		users := api.Group("/users")
+		{
+			users.GET("/", h.setRoleAdmin, h.checkRights, h.getUsers)
+			users.GET("/:id", h.setRoleAdmin, h.checkRights, h.getUserById)
+			users.POST("/create", h.setRoleAdmin, h.checkRights, h.createUser)
+			users.DELETE("/delete/:id", h.setRoleAdmin, h.checkRights, h.deleteUser)
+			users.POST("/avatar/upload/:id", h.setRoleAdmin, h.checkRights, h.uploadFile)
+			users.GET("/roles", h.setRoleAdmin, h.checkRights, h.getRoles)
+		}
+		search := api.Group("/search")
+		{
+			search.GET("/job/:jobName", h.setRoleAdmin, h.checkRights, h.searchJob)
+			search.GET("/org/:orgName", h.setRoleAdmin, h.checkRights, h.searchOrg)
+		}
+	}
 
 	return router
 }
