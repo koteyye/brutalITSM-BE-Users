@@ -1,19 +1,19 @@
-package http
+package rest
 
 import (
 	"net/http"
 	"path/filepath"
 
-	"brutalITSM-BE-Users/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/koteyye/brutalITSM-BE-Users/internal/models"
 )
 
 const (
 	bucketName = "avatars"
 )
 
-func (h *Handler) getUsers(c *gin.Context) {
+func (h *Rest) getUsers(c *gin.Context) {
 	result, err := h.services.GetUsers()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
@@ -23,7 +23,7 @@ func (h *Handler) getUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-func (h *Handler) getUserById(c *gin.Context) {
+func (h *Rest) getUserById(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
 		newErrorResponse(c, http.StatusBadRequest, "invalid is param")
@@ -38,7 +38,7 @@ func (h *Handler) getUserById(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-func (h *Handler) getRoles(c *gin.Context) {
+func (h *Rest) getRoles(c *gin.Context) {
 	result, err := h.services.GetRoles()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
@@ -48,7 +48,7 @@ func (h *Handler) getRoles(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-func (h *Handler) createUser(c *gin.Context) {
+func (h *Rest) createUser(c *gin.Context) {
 	var input models.User
 
 	if err := c.BindJSON(&input); err != nil {
@@ -74,7 +74,7 @@ func (h *Handler) createUser(c *gin.Context) {
 
 }
 
-func (h *Handler) deleteUser(c *gin.Context) {
+func (h *Rest) deleteUser(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
 		newErrorResponse(c, http.StatusBadRequest, "invalid is param")
@@ -91,7 +91,7 @@ func (h *Handler) deleteUser(c *gin.Context) {
 
 }
 
-func (h *Handler) uploadFile(c *gin.Context) {
+func (h *Rest) uploadFile(c *gin.Context) {
 	fileHeader, err := c.FormFile("file")
 	userId := c.Param("id")
 
@@ -123,7 +123,7 @@ func (h *Handler) uploadFile(c *gin.Context) {
 
 	input := models.Avatar{
 		MimeType:   mimeType,
-		BacketName: bucketName,
+		BucketName: bucketName,
 		FileName:   newFileName,
 	}
 

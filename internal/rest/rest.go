@@ -1,4 +1,4 @@
-package http
+package rest
 
 import (
 	"github.com/gin-contrib/cors"
@@ -7,15 +7,15 @@ import (
 	"time"
 )
 
-type Handler struct {
+type Rest struct {
 	services *service.Service
 }
 
-func NewHttp(services *service.Service) *Handler {
-	return &Handler{services: services}
+func NewHttp(services *service.Service) *Rest {
+	return &Rest{services: services}
 }
 
-func (h *Handler) InitRoutes() *gin.Engine {
+func (h *Rest) InitRoutes() *gin.Engine {
 	router := gin.New()
 
 	router.Use(cors.New(cors.Config{

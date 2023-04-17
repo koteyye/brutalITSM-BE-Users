@@ -1,4 +1,4 @@
-package http
+package rest
 
 import (
 	"github.com/gin-gonic/gin"
@@ -10,7 +10,7 @@ type signInInput struct {
 	Password string `json:"password" binding:"required"`
 }
 
-func (h *Handler) signIn(c *gin.Context) {
+func (h *Rest) signIn(c *gin.Context) {
 
 	var input signInInput
 
@@ -31,7 +31,7 @@ func (h *Handler) signIn(c *gin.Context) {
 
 }
 
-func (h *Handler) me(c *gin.Context) {
+func (h *Rest) me(c *gin.Context) {
 	id, ok := c.Get(userCtx)
 	if !ok {
 		newErrorResponse(c, http.StatusUnauthorized, "user unauthorized")

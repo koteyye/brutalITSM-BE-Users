@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/joho/godotenv"
-	http "github.com/koteyye/brutalITSM-BE-Users/internal/http"
 	"github.com/koteyye/brutalITSM-BE-Users/internal/postgres"
+	http "github.com/koteyye/brutalITSM-BE-Users/internal/rest"
 	"github.com/koteyye/brutalITSM-BE-Users/internal/s3"
 	"github.com/koteyye/brutalITSM-BE-Users/internal/service"
 	brutalitsm "github.com/koteyye/brutalITSM-BE-Users/server"
@@ -29,9 +29,9 @@ func main() {
 	services := service.NewService(repos, minio)
 	handler := http.NewHttp(services)
 
-	//run http server
-	httpSrv := new(brutalitsm.Server)
-	if err := httpSrv.Run(viper.GetString("port"), handler.InitRoutes()); err != nil {
+	//run rest server
+	restSrv := new(brutalitsm.Server)
+	if err := restSrv.Run(viper.GetString("port"), handler.InitRoutes()); err != nil {
 		logrus.Fatalf("error occuped while runing http server: %s", err.Error())
 	}
 

@@ -1,4 +1,4 @@
-package http
+package rest
 
 import (
 	"github.com/gin-gonic/gin"
@@ -14,7 +14,7 @@ const (
 )
 
 // Идентификация пользователя
-func (h *Handler) userIdentity(c *gin.Context) {
+func (h *Rest) userIdentity(c *gin.Context) {
 	header := c.GetHeader(authorizationHeader)
 	if header == "" {
 		newErrorResponse(c, http.StatusUnauthorized, "empty auth header")
@@ -37,19 +37,19 @@ func (h *Handler) userIdentity(c *gin.Context) {
 }
 
 // Проверка роли
-func (h *Handler) setRoleUser(c *gin.Context) {
+func (h *Rest) setRoleUser(c *gin.Context) {
 	c.Set(requireRole, "user")
 }
 
-func (h *Handler) setRoleExecutor(c *gin.Context) {
+func (h *Rest) setRoleExecutor(c *gin.Context) {
 	c.Set(requireRole, "executor")
 }
 
-func (h *Handler) setRoleAdmin(c *gin.Context) {
+func (h *Rest) setRoleAdmin(c *gin.Context) {
 	c.Set(requireRole, "admin")
 }
 
-func (h *Handler) checkRights(c *gin.Context) {
+func (h *Rest) checkRights(c *gin.Context) {
 	role, ok := c.Get(requireRole)
 	if !ok {
 		newErrorResponse(c, http.StatusInternalServerError, "role not found")

@@ -1,11 +1,11 @@
-package http
+package rest
 
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-func (h *Handler) searchJob(c *gin.Context) {
+func (h *Rest) searchJob(c *gin.Context) {
 	searchRequest := c.Param("jobName")
 	if searchRequest == "" {
 		newErrorResponse(c, http.StatusBadRequest, "invalid is param")
@@ -20,7 +20,7 @@ func (h *Handler) searchJob(c *gin.Context) {
 	c.JSON(http.StatusOK, searchResult)
 }
 
-func (h *Handler) searchOrg(c *gin.Context) {
+func (h *Rest) searchOrg(c *gin.Context) {
 	searchRequest := c.Param("orgName")
 	if searchRequest == "" {
 		newErrorResponse(c, http.StatusBadRequest, "invalid is param")
