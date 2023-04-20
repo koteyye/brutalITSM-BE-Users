@@ -29,14 +29,14 @@ func main() {
 	services := service.NewService(repos, minio)
 	handler := http.NewHttp(services)
 
+	//run gRPC server
+	_ = brutalitsm.RunGrpcSrv()
+
 	//run rest server
 	restSrv := new(brutalitsm.Server)
 	if err := restSrv.Run(viper.GetString("port"), handler.InitRoutes()); err != nil {
 		logrus.Fatalf("error occuped while runing http server: %s", err.Error())
 	}
-
-	//run gRPC server
-	_ = brutalitsm.RunGrpcSrv()
 
 }
 

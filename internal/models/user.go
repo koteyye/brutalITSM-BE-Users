@@ -25,7 +25,7 @@ type UserList struct {
 	Login     string         `json:"login" db:"login"`
 	Lastname  string         `json:"lastname" db:"last_name"`
 	Firstname string         `json:"firstname" db:"first_name"`
-	Surname   string         `json:"surname" db:"surname_name"`
+	Surname   string         `json:"surname" db:"sur_name"`
 	Job       string         `json:"job" db:"job_name"`
 	Org       string         `json:"org" db:"org_name"`
 	RolesList pq.StringArray `json:"roleList" db:"role_list"`

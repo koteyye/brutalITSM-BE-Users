@@ -17,7 +17,7 @@ message ResponseUser{
   string login=2;
   string lastName=3;
   string firstName=4;
-  string middleName=5;
+  string surName=5;
   string job=6;
   string org=7;
   repeated string roles=8;

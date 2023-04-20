@@ -38,7 +38,7 @@ create table persons (
                          user_id uuid not null references users(id),
                          last_name varchar(256) not null,
                          first_name varchar(256) not null,
-                         middle_name varchar(256),
+                         sur_name varchar(256),
                          job_id uuid references jobs(id),
                          org_id uuid references orgs(id),
                          created_at timestamp default now()             not null,
@@ -107,7 +107,7 @@ create function createUser(
     inp_email character varying,
     inp_lastname character varying,
     inp_firstname character varying,
-    inp_middlename character varying,
+    inp_surname character varying,
     inp_job_id uuid,
     inp_org_id uuid,
     inp_role_id uuid
@@ -126,8 +126,8 @@ case when inp_role_id is null then insert into user_roles (user_id) values (crea
 else insert into user_roles(user_id, role_id) values (created_user_id, inp_role_id);
 end case;
 
-insert into persons (user_id, last_name, first_name, middle_name, job_id, org_id)
-values (created_user_id, inp_lastname, inp_firstname, inp_middlename, inp_job_id, inp_org_id);
+insert into persons (user_id, last_name, first_name, sur_name, job_id, org_id)
+values (created_user_id, inp_lastname, inp_firstname, inp_surname, inp_job_id, inp_org_id);
 
 return created_user_id;
 end;
