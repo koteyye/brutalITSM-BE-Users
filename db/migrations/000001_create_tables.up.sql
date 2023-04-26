@@ -14,13 +14,14 @@ create table users
 
 create table user_img (
                           id uuid default uuid_generate_v4() not null primary key,
-                          user_id uuid references users(id),
+                          user_id uuid,
                           mime_type varchar(256) not null,
                           bucket_name varchar(512) not null,
                           file_name varchar(1024) not null,
                           created_at timestamp default now()             not null,
                           updated_at timestamp default now(),
-                          deleted_at timestamp
+                          deleted_at timestamp,
+                          foreign key (user_id) references users(id)
 );
 
 create table jobs (
@@ -35,21 +36,41 @@ create table orgs (
 
 create table persons (
                          id uuid default uuid_generate_v4() not null primary key,
-                         user_id uuid not null references users(id),
+                         user_id uuid not null,
                          last_name varchar(256) not null,
                          first_name varchar(256) not null,
                          sur_name varchar(256),
-                         job_id uuid references jobs(id),
-                         org_id uuid references orgs(id),
+                         job_id uuid,
+                         org_id uuid,
                          created_at timestamp default now()             not null,
                          updated_at timestamp default now(),
-                         deleted_at timestamp
+                         deleted_at timestamp,
+                         foreign key (user_id) references users(id),
+                         foreign key (job_id) references jobs(id),
+                         foreign key (org_id) references orgs(id)
 );
 
 create table roles
 (
     id uuid default uuid_generate_v4() not null primary key,
     name varchar(256) not null
+);
+
+create table permissions
+(
+    id uuid default uuid_generate_v4() not null primary key,
+    permissionCode varchar(256) not null,
+    created_at timestamp default now()             not null,
+    updated_at timestamp default now(),
+    deleted_at timestamp
+);
+
+create table role_permissions
+(
+    roles_id uuid not null,
+    permission_id uuid not null,
+    foreign key (roles_id) references roles(id),
+    foreign key (permission_id) references permissions(id)
 );
 
 create function defaultrole() returns uuid
@@ -69,8 +90,10 @@ $$;
 
 create table user_roles
 (
-    user_id uuid references users(id),
-    role_id uuid default defaultrole() references roles(id)
+    user_id uuid,
+    role_id uuid default defaultrole(),
+    foreign key (user_id) references users(id),
+    foreign key (role_id) references roles(id)
 );
 
 create function get_user_roles(input_id uuid)
@@ -152,3 +175,7 @@ select createUser('admin',
                   (select id from orgs where name = 'Админская'),
                   (select id from roles where name = 'admin')
            );
+
+
+insert into permissions (permissioncode)
+values ('newsRead'), ('newsWrite'), ('adminPanelRead'), ('adminPanelWrite');

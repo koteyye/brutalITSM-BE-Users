@@ -1,4 +1,4 @@
-package grpc
+package grpc2
 
 import (
 	"context"
@@ -7,12 +7,21 @@ import (
 )
 
 type GRPC struct {
-	service *service.Service
+	services *service.Service
 	pb.UserServiceServer
 }
 
+func NewGRPC(services *service.Service) *GRPC {
+	return &GRPC{services: services}
+}
+
 func (s *GRPC) GetUserByToken(ctx context.Context, req *pb.RequestToken) (*pb.ResponseUser, error) {
-	user, err := s.service.Me(req)
+	userId, err := s.services.ParseToken(req.Token)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := s.services.Me(userId)
 	if err != nil {
 		return nil, err
 	}

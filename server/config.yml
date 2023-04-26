@@ -1,5 +1,5 @@
 restPort: "8080"
-grpcPort: "8081"
+grpcPort: ":8081"
 
 db:
   username: "brutal"
