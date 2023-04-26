@@ -11,7 +11,7 @@ type GRPC struct {
 	pb.UserServiceServer
 }
 
-func (s *GRPC) CheckToken(ctx context.Context, req *pb.RequestToken) (*pb.ResponseUser, error) {
+func (s *GRPC) GetUserByToken(ctx context.Context, req *pb.RequestToken) (*pb.ResponseUser, error) {
 	user, err := s.service.Me(req)
 	if err != nil {
 		return nil, err

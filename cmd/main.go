@@ -3,13 +3,20 @@ package main
 import (
 	"github.com/joho/godotenv"
 	"github.com/koteyye/brutalITSM-BE-Users/internal/postgres"
-	http "github.com/koteyye/brutalITSM-BE-Users/internal/rest"
+	"github.com/koteyye/brutalITSM-BE-Users/internal/rest"
 	"github.com/koteyye/brutalITSM-BE-Users/internal/s3"
 	"github.com/koteyye/brutalITSM-BE-Users/internal/service"
+	pb "github.com/koteyye/brutalITSM-BE-Users/proto"
 	brutalitsm "github.com/koteyye/brutalITSM-BE-Users/server"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"google.golang.org/grpc"
+	"net"
 )
+
+type GrpcUserServer struct {
+	pb.UserServiceServer
+}
 
 func main() {
 	logrus.SetFormatter(new(logrus.JSONFormatter))
@@ -27,19 +34,32 @@ func main() {
 	//init internal
 	repos := postgres.NewRepository(db)
 	services := service.NewService(repos, minio)
-	handler := http.NewHttp(services)
+	handler := rest.NewRest(services)
 
 	go runGrpcServer()
 
-	restSrv := new(brutalitsm.Server)
-	if err := restSrv.Run(viper.GetString("port"), handler.InitRoutes()); err != nil {
-		logrus.Fatalf("error occuped while runing http server: %s", err.Error())
-	}
+	go runRestServer(handler)
 
 }
 
 func runGrpcServer() {
-	_ = brutalitsm.RunGrpcSrv()
+	lis, err := net.Listen("tcp", viper.GetString("grpcPort"))
+	if err != nil {
+		logrus.Fatalf("Failed to start GRPC server \n %v \n", err)
+	}
+	grpcServer := grpc.NewServer()
+	pb.RegisterUserServiceServer(grpcServer, &GrpcUserServer{})
+	logrus.Info("GRPC Server started at %v", lis.Addr())
+	if err := grpcServer.Serve(lis); err != nil {
+		logrus.Fatalf("Failed to start GRPC: \n %v \n", err)
+	}
+}
+
+func runRestServer(handler *rest.Rest) {
+	restServer := new(brutalitsm.Server)
+	if err := restServer.Run(viper.GetString("restPort"), handler.InitRoutes()); err != nil {
+		logrus.Fatalf("Error occuped while runing Rest server :%s", err.Error())
+	}
 }
 
 func initConfig() error {

@@ -11,7 +11,7 @@ type Rest struct {
 	services *service.Service
 }
 
-func NewHttp(services *service.Service) *Rest {
+func NewRest(services *service.Service) *Rest {
 	return &Rest{services: services}
 }
 

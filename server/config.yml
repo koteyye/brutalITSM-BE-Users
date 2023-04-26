@@ -1,4 +1,5 @@
-port: "8080"
+restPort: "8080"
+grpcPort: "8081"
 
 db:
   username: "brutal"
