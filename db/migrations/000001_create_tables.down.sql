@@ -24,6 +24,8 @@ drop function public.delete_user(uuid);
 
 drop function createuser(varchar, varchar, varchar, varchar, varchar, varchar, uuid, uuid, uuid);
 
+drop function getUserById(uuid);
+
 drop extension "pgcrypto";
 
 drop extension "uuid-ossp";

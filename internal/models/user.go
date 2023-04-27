@@ -21,15 +21,16 @@ type User struct {
 }
 
 type UserList struct {
-	Id        string         `json:"id" db:"id"`
-	Login     string         `json:"login" db:"login"`
-	Lastname  string         `json:"lastname" db:"last_name"`
-	Firstname string         `json:"firstname" db:"first_name"`
-	Surname   string         `json:"surname" db:"sur_name"`
-	Job       string         `json:"job" db:"job_name"`
-	Org       string         `json:"org" db:"org_name"`
-	RolesList pq.StringArray `json:"roleList" db:"role_list"`
-	Avatar    *Avatar        `json:"avatar" db:"avatar"`
+	Id          string         `json:"id" db:"id"`
+	Login       string         `json:"login" db:"login"`
+	Lastname    string         `json:"lastname" db:"last_name"`
+	Firstname   string         `json:"firstname" db:"first_name"`
+	Surname     string         `json:"surname" db:"sur_name"`
+	Job         string         `json:"job" db:"job_name"`
+	Org         string         `json:"org" db:"org_name"`
+	RolesList   pq.StringArray `json:"roleList" db:"role_list"`
+	Permissions pq.StringArray `json:"permissions" db:"permissions"`
+	Avatar      *Avatar        `json:"avatar" db:"avatar"`
 }
 
 type Avatar struct {

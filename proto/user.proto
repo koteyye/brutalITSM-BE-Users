@@ -5,11 +5,16 @@ option go_package = "./proto";
 package user_service;
 
 service UserService{
-  rpc GetUserByToken(RequestToken) returns (ResponseUser);
+  rpc GetByToken(RequestToken) returns (ResponseUser);
+  rpc GetByUserId(RequestUser) returns (ResponseUser);
 }
 
 message RequestToken{
   string token=1;
+}
+
+message RequestUser{
+  string userId=1;
 }
 
 message ResponseUser{
@@ -21,7 +26,10 @@ message ResponseUser{
   string job=6;
   string org=7;
   repeated string roles=8;
-  string avatarMimeType=9;
-  string avatarBucketName=10;
-  string avatarFileName=11;
+  repeated string permissions=9;
+  message avatar {
+    string avatarMimeType=10;
+    string avatarBucketName=11;
+    string avatarFileName=12;
+  }
 }

@@ -2,8 +2,10 @@ package postgres
 
 import (
 	"fmt"
+	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 	"github.com/koteyye/brutalITSM-BE-Users/internal/models"
+	"github.com/sirupsen/logrus"
 )
 
 type userPostgres struct {
@@ -78,14 +80,14 @@ func (u userPostgres) GetUsers() ([]models.UserList, error) {
 	return users, err
 }
 
-func (u userPostgres) GetUserById(userId string) (models.UserList, error) {
-	var user models.UserList
-
-	query := fmt.Sprintf("select u.id,\n       u.login,\n       p.last_name,\n       p.first_name,\n       p.sur_name,\n  j.name job_name,\n o.name org_name,\n       (select array_agg(r.name)\n        from roles r\n                 join user_roles ur on r.id = ur.role_id\n        where ur.user_id = u.id)                                                                              role_list,\n       json_build_object('mimeType', ui.mime_type, 'bucketName', ui.bucket_name, 'fileName', ui.file_name) avatar\nfrom \"users\" u\n         join persons p on u.id = p.user_id\n join jobs j on j.id = p.job_id join orgs o on o.id = p.org_id         left join user_img ui on u.id = ui.user_id where u.id = $1 and u.deleted_at is null and ui.deleted_at is null;")
-	err := u.db.Get(&user, query, userId)
-
-	return user, err
-}
+//func (u userPostgres) GetUserById(userId string) (models.UserList, error) {
+//	var user models.UserList
+//
+//	query := fmt.Sprintf("select u.id,\n       u.login,\n       p.last_name,\n       p.first_name,\n       p.sur_name,\n  j.name job_name,\n o.name org_name,\n       (select array_agg(r.name)\n        from roles r\n                 join user_roles ur on r.id = ur.role_id\n        where ur.user_id = u.id)                                                                              role_list,\n       json_build_object('mimeType', ui.mime_type, 'bucketName', ui.bucket_name, 'fileName', ui.file_name) avatar\nfrom \"users\" u\n         join persons p on u.id = p.user_id\n join jobs j on j.id = p.job_id join orgs o on o.id = p.org_id         left join user_img ui on u.id = ui.user_id where u.id = $1 and u.deleted_at is null and ui.deleted_at is null;")
+//	err := u.db.Get(&user, query, userId)
+//
+//	return user, err
+//}
 
 func (u userPostgres) GetRoles() ([]models.Roles, error) {
 	var roles []models.Roles
@@ -94,4 +96,19 @@ func (u userPostgres) GetRoles() ([]models.Roles, error) {
 	err := u.db.Select(&roles, query)
 
 	return roles, err
+}
+
+func (u userPostgres) GetUserById(userId string) (models.UserList, error) {
+	var user models.UserList
+
+	query := sq.Select("*").From(fmt.Sprintf("getUserById('%v')", userId))
+	sql, arg, err := query.ToSql()
+	if err != nil {
+		logrus.Fatalf("Какая-то дичь с запросом... %v", err)
+	}
+	logrus.Infof("%v", sql)
+	logrus.Infof("arg: %v", arg)
+	err1 := u.db.Get(&user, sql, userId)
+
+	return user, err1
 }
