@@ -25,6 +25,7 @@ type User interface {
 	GetUserById(userId string) (models.UserList, error)
 	UploadFile(ctx context.Context, reader io.Reader, bucketName string, filename string, fileSize int64) (minio.UploadInfo, string, error)
 	GetRoles() ([]models.Roles, error)
+	GetUserList(userId []string) ([]models.UserShortList, error)
 }
 
 type Search interface {

@@ -110,3 +110,7 @@ func (u *UserService) GetUserById(userId string) (models.UserList, error) {
 func (u *UserService) GetRoles() ([]models.Roles, error) {
 	return u.repo.GetRoles()
 }
+
+func (u *UserService) GetUserList(userId []string) ([]models.UserShortList, error) {
+	return u.repo.GetUserList(userId)
+}

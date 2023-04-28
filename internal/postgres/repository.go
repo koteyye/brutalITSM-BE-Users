@@ -22,6 +22,7 @@ type User interface {
 	GetUserById(userId string) (models.UserList, error)
 	GetRoles() ([]models.Roles, error)
 	GetUserAvatarS3(userId string) (models.SingleAvatars, error)
+	GetUserList(usersId []string) ([]models.UserShortList, error)
 }
 
 type Search interface {

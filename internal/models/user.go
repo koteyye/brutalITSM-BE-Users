@@ -69,3 +69,11 @@ type SingleAvatars struct {
 	FileName   string `json:"fileName" db:"file_name"`
 	ImgId      string `json:"_" db:"id"`
 }
+
+type UserShortList struct {
+	Id        string  `json:"id" db:"id"`
+	Lastname  string  `json:"lastname" db:"last_name"`
+	Firstname string  `json:"firstname" db:"first_name"`
+	Surname   string  `json:"surname" db:"sur_name"`
+	Avatar    *Avatar `json:"avatar" db:"avatar"`
+}

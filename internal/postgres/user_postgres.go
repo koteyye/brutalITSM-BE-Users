@@ -100,15 +100,24 @@ func (u userPostgres) GetRoles() ([]models.Roles, error) {
 
 func (u userPostgres) GetUserById(userId string) (models.UserList, error) {
 	var user models.UserList
-
-	query := sq.Select("*").From(fmt.Sprintf("getUserById('%v')", userId))
-	sql, arg, err := query.ToSql()
+	query := sq.Select("*").From("getUserById($1)").PlaceholderFormat(sq.Dollar)
+	sql, _, err := query.ToSql()
 	if err != nil {
-		logrus.Fatalf("Какая-то дичь с запросом... %v", err)
+		logrus.Fatalf("SQL query not builde %v", err)
 	}
-	logrus.Infof("%v", sql)
-	logrus.Infof("arg: %v", arg)
 	err1 := u.db.Get(&user, sql, userId)
 
 	return user, err1
+}
+
+func (u userPostgres) GetUserList(usersId []string) ([]models.UserShortList, error) {
+	var users []models.UserShortList
+
+	query := sq.Select("p.user_id, p.last_name, p.first_name, p.sur_name,  ui.mime_type, ui.bucket_name, ui.file_name").From("person p").Join("user_img ui on p.user_id = ui.user_id").Where(sq.Eq{"p.user_id": usersId})
+	sql, _, err := query.ToSql()
+	if err != nil {
+		logrus.Fatalf("SQL query not builde %v", err)
+	}
+	err1 := u.db.Get(&users, sql)
+	return users, err1
 }

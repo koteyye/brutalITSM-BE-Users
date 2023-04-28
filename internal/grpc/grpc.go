@@ -53,5 +53,18 @@ func (s *GRPC) GetByUserId(ctx context.Context, req *pb.RequestUser) (*pb.Respon
 		Org:         user.Org,
 		Roles:       user.RolesList,
 		Permissions: user.Permissions,
+		AvatarMimeType: user.Avatar.MimeType,
+		AvatarBucketName: user.Avatar.BucketName,
+		AvatarFileName: user.Avatar.FileName,
+	}, nil
+}
+
+func (s *GRPC) GetByUsersId(ctx context.Context, req *pb.RequestUsers) (*pb.ResponseShortUsers, error) {
+	userList, err := s.services.GetUserList(req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.ResponseShortUsers{
+		Id: userList.
 	}, nil
 }

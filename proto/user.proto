@@ -7,6 +7,21 @@ package user_service;
 service UserService{
   rpc GetByToken(RequestToken) returns (ResponseUser);
   rpc GetByUserId(RequestUser) returns (ResponseUser);
+  rpc GetByUsersId(RequestUsers) returns (ResponseShortUsers);
+}
+
+message RequestUsers{
+  repeated string id=1;
+}
+
+message ResponseShortUsers{
+  string id=1;
+  string lastName=2;
+  string firstName=3;
+  string surName=4;
+  string mimeType=5;
+  string bucketName=6;
+  string fileName=7;
 }
 
 message RequestToken{
@@ -27,9 +42,7 @@ message ResponseUser{
   string org=7;
   repeated string roles=8;
   repeated string permissions=9;
-  message avatar {
-    string avatarMimeType=10;
-    string avatarBucketName=11;
-    string avatarFileName=12;
-  }
+  string avatarMimeType=10;
+  string avatarBucketName=11;
+  string avatarFileName=12;
 }
