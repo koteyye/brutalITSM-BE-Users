@@ -4,9 +4,6 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
-	"os"
 )
 
 type Config struct {
@@ -31,22 +28,4 @@ func NewPostgresDB(cfg Config) (*sqlx.DB, error) {
 	}
 
 	return db, nil
-}
-
-func InitPostgres() (*sqlx.DB, error) {
-
-	db, err := NewPostgresDB(Config{
-		Host:     viper.GetString("db.host"),
-		Port:     viper.GetString("db.port"),
-		Username: viper.GetString("db.username"),
-		Password: os.Getenv("DB_PASSWORD"),
-		DBName:   viper.GetString("db.dbname"),
-		SSLMode:  viper.GetString("db.sslmode"),
-	})
-
-	if err != nil {
-		logrus.Fatalf("faild to initialize db: %s", err.Error())
-	}
-
-	return db, err
 }

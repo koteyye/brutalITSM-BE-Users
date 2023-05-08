@@ -1,7 +1,17 @@
 package main
 
 import (
+	"context"
+	"fmt"
+	"os/signal"
+	"syscall"
+	"time"
+
+	_ "github.com/lib/pq"
+
+	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
+	"github.com/koteyye/brutalITSM-BE-Users/config"
 	grpc2 "github.com/koteyye/brutalITSM-BE-Users/internal/grpc"
 	"github.com/koteyye/brutalITSM-BE-Users/internal/postgres"
 	"github.com/koteyye/brutalITSM-BE-Users/internal/rest"
@@ -11,35 +21,38 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"net"
 	"os"
+
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
 func main() {
 	logrus.SetFormatter(new(logrus.JSONFormatter))
-	if err := initConfig(); err != nil {
-		logrus.Fatalf("error initializing configs: %s", err.Error())
-	}
+
 	if err := godotenv.Load(); err != nil {
 		logrus.Fatalf("Error loading env variables %s", err.Error())
 	}
-	// Postgres Client
-	db, err := postgres.NewPostgresDB(postgres.Config{
-		Host:     viper.GetString("db.host"),
-		Port:     viper.GetString("db.port"),
-		Username: viper.GetString("db.username"),
-		Password: os.Getenv("DB_PASSWORD"),
-		DBName:   viper.GetString("db.dbname"),
-		SSLMode:  viper.GetString("db.sslmode"),
-	})
+
+	cfg, err := config.GetConfig()
 	if err != nil {
-		logrus.Fatalf("faild to initialize db: %s", err.Error())
+		logrus.Fatalf("Get config: %v", err)
+	}
+
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	defer cancel()
+
+	// Postgres Client
+	db, err := newPostgres(ctx, cfg.Storages.Postgres)
+	if err != nil {
+		logrus.Fatalf("Can't get postgres client pool: %v", err)
 	}
 
 	// Minio Client
-	endpoint := viper.GetString("minio.url")
+	endpoint := cfg.Storages.Minio.URL
 	accessKeyId := os.Getenv("KEY_ID")
 	secretAccessKey := os.Getenv("SECRET_KEY")
 	useSSL := false
@@ -60,17 +73,17 @@ func main() {
 	handler := rest.NewRest(services)
 	grpcHandler := grpc2.NewGRPC(services)
 
-	go runGrpcServer(grpcHandler)
+	go runGrpcServer(grpcHandler, cfg.Server.GRPC)
 
 	restServer := new(brutalitsm.Server)
-	if err := restServer.Run(viper.GetString("restPort"), handler.InitRoutes()); err != nil {
+	if err := restServer.Run(cfg.Server.HTTP.Listen, handler.InitRoutes()); err != nil {
 		logrus.Fatalf("Error occuped while runing Rest server :%s", err.Error())
 	}
 
 }
 
-func runGrpcServer(grpcHandler *grpc2.GRPC) {
-	lis, err := net.Listen("tcp", viper.GetString("grpcPort"))
+func runGrpcServer(grpcHandler *grpc2.GRPC, cfg *config.GrpcServerConfig) {
+	lis, err := net.Listen("tcp", cfg.Listen)
 	if err != nil {
 		logrus.Fatalf("Failed to start GRPC server \n %v \n", err)
 	}
@@ -82,8 +95,37 @@ func runGrpcServer(grpcHandler *grpc2.GRPC) {
 	}
 }
 
-func initConfig() error {
-	viper.AddConfigPath("server")
-	viper.SetConfigName("config")
-	return viper.ReadInConfig()
+func newPostgres(ctx context.Context, cfg *config.DBConfig) (*sqlx.DB, error) {
+	db, err := sqlx.Open("postgres", cfg.DSN)
+	if err != nil {
+		return nil, fmt.Errorf("can't create db: %w", err)
+	}
+
+	dbCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	err = db.PingContext(dbCtx)
+	if err != nil {
+		return nil, fmt.Errorf("can't ping db: %w", err)
+	}
+
+	logrus.Infoln("Migration started")
+	m, err := migrate.New("file://db/migrations",
+		cfg.DSN)
+	if err != nil {
+		logrus.Fatalf("Migrate error: %v", err)
+	}
+	if err := m.Up(); err != nil {
+		switch err {
+		case nil:
+			break
+		case migrate.ErrNoChange:
+			logrus.Info("Migrate no change")
+			return db, nil
+		default:
+			logrus.Fatalf("Migrate error: %v", err)
+			return db, err
+		}
+	}
+	return db, nil
 }

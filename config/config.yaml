@@ -1,0 +1,13 @@
+server:
+  http:
+    base_url: /
+    listen: 8080
+  grpc:
+    listen: :9090
+
+storages:
+  postgres:
+    use_env: true
+    dsn: ""
+  minio:
+    url: "localhost:9000"
