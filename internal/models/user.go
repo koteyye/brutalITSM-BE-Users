@@ -71,9 +71,11 @@ type SingleAvatars struct {
 }
 
 type UserShortList struct {
-	Id        string  `json:"id" db:"id"`
-	Lastname  string  `json:"lastname" db:"last_name"`
-	Firstname string  `json:"firstname" db:"first_name"`
-	Surname   string  `json:"surname" db:"sur_name"`
-	Avatar    *Avatar `json:"avatar" db:"avatar"`
+	Id         string  `json:"id" db:"user_id"`
+	Lastname   string  `json:"lastname" db:"last_name"`
+	Firstname  string  `json:"firstname" db:"first_name"`
+	Surname    string  `json:"surname" db:"sur_name"`
+	MimeType   *string `json:"mimeType" db:"mime_type"`
+	BucketName *string `json:"bucketName" db:"bucket_name"`
+	FileName   *string `json:"fileName" db:"file_name"`
 }

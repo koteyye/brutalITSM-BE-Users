@@ -24,7 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type UserServiceClient interface {
 	GetByToken(ctx context.Context, in *RequestToken, opts ...grpc.CallOption) (*ResponseUser, error)
 	GetByUserId(ctx context.Context, in *RequestUser, opts ...grpc.CallOption) (*ResponseUser, error)
-	GetByUsersId(ctx context.Context, in *RequestUsers, opts ...grpc.CallOption) (*ResponseShortUsers, error)
+	GetByUserList(ctx context.Context, in *RequestUsers, opts ...grpc.CallOption) (*ResponseUsers, error)
 }
 
 type userServiceClient struct {
@@ -53,9 +53,9 @@ func (c *userServiceClient) GetByUserId(ctx context.Context, in *RequestUser, op
 	return out, nil
 }
 
-func (c *userServiceClient) GetByUsersId(ctx context.Context, in *RequestUsers, opts ...grpc.CallOption) (*ResponseShortUsers, error) {
-	out := new(ResponseShortUsers)
-	err := c.cc.Invoke(ctx, "/user_service.UserService/GetByUsersId", in, out, opts...)
+func (c *userServiceClient) GetByUserList(ctx context.Context, in *RequestUsers, opts ...grpc.CallOption) (*ResponseUsers, error) {
+	out := new(ResponseUsers)
+	err := c.cc.Invoke(ctx, "/user_service.UserService/GetByUserList", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func (c *userServiceClient) GetByUsersId(ctx context.Context, in *RequestUsers, 
 type UserServiceServer interface {
 	GetByToken(context.Context, *RequestToken) (*ResponseUser, error)
 	GetByUserId(context.Context, *RequestUser) (*ResponseUser, error)
-	GetByUsersId(context.Context, *RequestUsers) (*ResponseShortUsers, error)
+	GetByUserList(context.Context, *RequestUsers) (*ResponseUsers, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -82,8 +82,8 @@ func (UnimplementedUserServiceServer) GetByToken(context.Context, *RequestToken)
 func (UnimplementedUserServiceServer) GetByUserId(context.Context, *RequestUser) (*ResponseUser, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetByUserId not implemented")
 }
-func (UnimplementedUserServiceServer) GetByUsersId(context.Context, *RequestUsers) (*ResponseShortUsers, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetByUsersId not implemented")
+func (UnimplementedUserServiceServer) GetByUserList(context.Context, *RequestUsers) (*ResponseUsers, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetByUserList not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 
@@ -134,20 +134,20 @@ func _UserService_GetByUserId_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_GetByUsersId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _UserService_GetByUserList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RequestUsers)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).GetByUsersId(ctx, in)
+		return srv.(UserServiceServer).GetByUserList(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user_service.UserService/GetByUsersId",
+		FullMethod: "/user_service.UserService/GetByUserList",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).GetByUsersId(ctx, req.(*RequestUsers))
+		return srv.(UserServiceServer).GetByUserList(ctx, req.(*RequestUsers))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -168,8 +168,8 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserService_GetByUserId_Handler,
 		},
 		{
-			MethodName: "GetByUsersId",
-			Handler:    _UserService_GetByUsersId_Handler,
+			MethodName: "GetByUserList",
+			Handler:    _UserService_GetByUserList_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

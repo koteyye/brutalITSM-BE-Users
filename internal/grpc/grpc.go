@@ -59,12 +59,22 @@ func (s *GRPC) GetByUserId(ctx context.Context, req *pb.RequestUser) (*pb.Respon
 	}, nil
 }
 
-//func (s *GRPC) GetByUsersId(ctx context.Context, req *pb.RequestUsers) (*pb.ResponseShortUsers, error) {
-//	userList, err := s.services.GetUserList(req.Id)
-//	if err != nil {
-//		return nil, err
-//	}
-//	return &pb.ResponseShortUsers{
-//		Id: userList.
-//	}, nil
-//}
+func (s *GRPC) GetByUserList(ctx context.Context, req *pb.RequestUsers) (*pb.ResponseUsers, error) {
+	userList, err := s.services.GetUserList(req.Id)
+	if err != nil {
+		return nil, err
+	}
+	var usersProto []*pb.User
+	for _, users := range userList {
+		usersProto = append(usersProto, &pb.User{
+			Id:         users.Id,
+			LastName:   users.Lastname,
+			FirstName:  users.Firstname,
+			SurName:    users.Surname,
+			MimeType:   users.MimeType,
+			BucketName: users.BucketName,
+			FileName:   users.FileName,
+		})
+	}
+	return &pb.ResponseUsers{UserList: usersProto}, nil
+}

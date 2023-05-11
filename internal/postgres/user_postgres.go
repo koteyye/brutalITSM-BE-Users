@@ -5,6 +5,7 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 	"github.com/koteyye/brutalITSM-BE-Users/internal/models"
+	"github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 )
 
@@ -113,11 +114,12 @@ func (u userPostgres) GetUserById(userId string) (models.UserList, error) {
 func (u userPostgres) GetUserList(usersId []string) ([]models.UserShortList, error) {
 	var users []models.UserShortList
 
-	query := sq.Select("p.user_id, p.last_name, p.first_name, p.sur_name,  ui.mime_type, ui.bucket_name, ui.file_name").From("person p").Join("user_img ui on p.user_id = ui.user_id").Where(sq.Eq{"p.user_id": usersId})
-	sql, _, err := query.ToSql()
+	query := sq.Select("p.user_id, p.last_name, p.first_name, p.sur_name,  ui.mime_type, ui.bucket_name, ui.file_name").From("persons p").LeftJoin("user_img ui on p.user_id = ui.user_id").Where(sq.Eq{"p.user_id": usersId}).PlaceholderFormat(sq.Dollar)
+	sql, args, err := query.ToSql()
 	if err != nil {
 		logrus.Fatalf("SQL query not builde %v", err)
 	}
-	err1 := u.db.Get(&users, sql)
+	logrus.Info(pq.Array(args))
+	err1 := u.db.Select(&users, sql, args...)
 	return users, err1
 }
