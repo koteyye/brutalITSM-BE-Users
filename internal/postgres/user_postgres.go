@@ -5,7 +5,6 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 	"github.com/koteyye/brutalITSM-BE-Users/internal/models"
-	"github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 )
 
@@ -119,7 +118,6 @@ func (u userPostgres) GetUserList(usersId []string) ([]models.UserShortList, err
 	if err != nil {
 		logrus.Fatalf("SQL query not builde %v", err)
 	}
-	logrus.Info(pq.Array(args))
 	err1 := u.db.Select(&users, sql, args...)
 	return users, err1
 }
