@@ -4,11 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/dgrijalva/jwt-go"
-	"github.com/koteyye/brutalITSM-BE-Users/internal/service"
-	pb "github.com/koteyye/brutalITSM-BE-Users/proto"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"github.com/koteyye/brutalITSM-BE-Users/internal/service"
+	pb "github.com/koteyye/brutalITSM-BE-Users/proto"
 )
 
 type GRPC struct {
@@ -41,29 +43,22 @@ func newError(status codes.Code, msg string) error {
 }
 
 func (s *GRPC) GetByToken(ctx context.Context, req *pb.RequestToken) (*pb.ResponseUser, error) {
-	var errToken *jwt.ValidationError
 	userId, err := s.services.ParseToken(req.Token)
 	if err != nil {
+		var errToken *jwt.ValidationError
 		if errors.As(err, &errToken) {
-			switch err.(jwt.ValidationError) {
-			case jwt.ValidationError{Errors: 4}:
+			if errToken.Errors == 4 {
 				return nil, newError(codes.Unauthenticated, err.Error())
-			case jwt.ValidationError{Errors: 16}:
+			} else if errToken.Errors == 16 {
 				return nil, newError(codes.PermissionDenied, err.Error())
-			default:
+
+			} else {
 				return nil, newError(codes.Internal, err.Error())
 			}
 		} else {
 			return nil, newError(codes.Internal, err.Error())
 		}
 
-		if errors.As(err, &jwt.ValidationError{Errors: 16}) {
-			return nil, newError(codes.Unauthenticated, err.Error())
-		} else if errors.As(err, &jwt.ValidationError{Errors: 16}) {
-			return nil, newError(codes.PermissionDenied, err.Error())
-		} else {
-			return nil, newError(codes.Internal, err.Error())
-		}
 	}
 
 	user, err := s.services.Me(userId)
