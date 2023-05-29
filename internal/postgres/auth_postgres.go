@@ -2,8 +2,10 @@ package postgres
 
 import (
 	"fmt"
+	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 	"github.com/koteyye/brutalITSM-BE-Users/internal/models"
+	"github.com/sirupsen/logrus"
 )
 
 type AuthPostgres struct {
@@ -49,8 +51,12 @@ func (r *AuthPostgres) CheckRights(userId any) ([]string, error) {
 func (r *AuthPostgres) Me(id any) (models.UserList, error) {
 	var user models.UserList
 
-	query := fmt.Sprintf("select u.id, u.login, p.last_name, p.first_name, j.name job_name, o.name org_name, (select array_agg(r.name) from roles r join user_roles ur on r.id = ur.role_id where ur.user_id = u.id) role_list, json_build_object('mimeType', ui.mime_type, 'bucketName', ui.bucket_name, 'fileName', ui.file_name) avatar from users u join persons p on u.id = p.user_id left join user_img ui on u.id = ui.user_id join jobs j on p.job_id = j.id join orgs o on p.org_id = o.id where u.id = $1 and ui.deleted_at is null;")
-	err := r.db.Get(&user, query, id)
+	query := sq.Select("*").From("getUserById($1)").PlaceholderFormat(sq.Dollar)
+	sql, _, err := query.ToSql()
+	if err != nil {
+		logrus.Fatalf("SQL query not builde %v", err)
+	}
+	err1 := r.db.Get(&user, sql, id)
 
-	return user, err
+	return user, err1
 }

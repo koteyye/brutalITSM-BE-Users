@@ -2,8 +2,13 @@ package grpc2
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/koteyye/brutalITSM-BE-Users/internal/service"
 	pb "github.com/koteyye/brutalITSM-BE-Users/proto"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type GRPC struct {
@@ -11,18 +16,59 @@ type GRPC struct {
 	pb.UserServiceServer
 }
 
+type Error struct {
+	Message string     `json:"message"`
+	Status  codes.Code `json:"-"`
+}
+
 func NewGRPC(services *service.Service) *GRPC {
 	return &GRPC{services: services}
 }
 
+func (e Error) Error() string {
+	return fmt.Sprintf("Error: %s", e.Message)
+}
+
+func (e Error) GRPCStatus() *status.Status {
+	return status.New(e.Status, e.Error())
+}
+
+func newError(status codes.Code, msg string) error {
+	return &Error{
+		Status:  status,
+		Message: msg,
+	}
+}
+
 func (s *GRPC) GetByToken(ctx context.Context, req *pb.RequestToken) (*pb.ResponseUser, error) {
+	var errToken *jwt.ValidationError
 	userId, err := s.services.ParseToken(req.Token)
 	if err != nil {
-		return nil, err
+		if errors.As(err, &errToken) {
+			switch err.(jwt.ValidationError) {
+			case jwt.ValidationError{Errors: 4}:
+				return nil, newError(codes.Unauthenticated, err.Error())
+			case jwt.ValidationError{Errors: 16}:
+				return nil, newError(codes.PermissionDenied, err.Error())
+			default:
+				return nil, newError(codes.Internal, err.Error())
+			}
+		} else {
+			return nil, newError(codes.Internal, err.Error())
+		}
+
+		if errors.As(err, &jwt.ValidationError{Errors: 16}) {
+			return nil, newError(codes.Unauthenticated, err.Error())
+		} else if errors.As(err, &jwt.ValidationError{Errors: 16}) {
+			return nil, newError(codes.PermissionDenied, err.Error())
+		} else {
+			return nil, newError(codes.Internal, err.Error())
+		}
 	}
 
 	user, err := s.services.Me(userId)
 	if err != nil {
+
 		return nil, err
 	}
 	return &pb.ResponseUser{
