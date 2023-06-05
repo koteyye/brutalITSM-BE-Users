@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-
 	"github.com/dgrijalva/jwt-go"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -47,7 +46,7 @@ func (s *GRPC) GetByToken(ctx context.Context, req *pb.RequestToken) (*pb.Respon
 	if err != nil {
 		var errToken *jwt.ValidationError
 		if errors.As(err, &errToken) {
-			if errToken.Errors == 4 {
+			if errToken.Errors == 20 {
 				return nil, newError(codes.Unauthenticated, err.Error())
 			} else if errToken.Errors == 16 {
 				return nil, newError(codes.PermissionDenied, err.Error())
