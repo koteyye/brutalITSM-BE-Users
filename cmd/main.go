@@ -30,6 +30,17 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
+// @title User Service API
+// @version 1.0
+// @description API Server for User Service BrutalITSM
+
+// @host localhost:8000
+// @BasePath /
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+
 func main() {
 	logrus.SetFormatter(new(logrus.JSONFormatter))
 

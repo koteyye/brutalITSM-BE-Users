@@ -10,6 +10,19 @@ type signInInput struct {
 	Password string `json:"password" binding:"required"`
 }
 
+// SignIn
+// @Summary Sign in account
+// @Description  Sign in your account with login and password
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param        input body signInInput true "account info"
+// @Success      200  {object}  model.Account
+// @Failure      400  {object}  httputil.HTTPError
+// @Failure      404  {object}  httputil.HTTPError
+// @Failure      500  {object}  httputil.HTTPError
+// @Router       /accounts/{id} [get]
+
 func (h *Rest) signIn(c *gin.Context) {
 
 	var input signInInput
