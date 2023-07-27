@@ -26,8 +26,8 @@ type UserList struct {
 	Lastname    string         `json:"lastname" db:"last_name"`
 	Firstname   string         `json:"firstname" db:"first_name"`
 	Surname     string         `json:"surname" db:"sur_name"`
-	Job         string         `json:"job" db:"job_name"`
-	Org         string         `json:"org" db:"org_name"`
+	Job         string         `json:"job" db:"job_name" db:"name"`
+	Org         string         `json:"org" db:"org_name" db:"name"`
 	RolesList   pq.StringArray `json:"roleList" db:"role_list"`
 	Permissions pq.StringArray `json:"permissions" db:"permissions"`
 	Avatar      *Avatar        `json:"avatar" db:"avatar"`

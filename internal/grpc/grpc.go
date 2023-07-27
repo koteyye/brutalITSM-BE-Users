@@ -66,15 +66,18 @@ func (s *GRPC) GetByToken(ctx context.Context, req *pb.RequestToken) (*pb.Respon
 		return nil, err
 	}
 	return &pb.ResponseUser{
-		Id:          user.Id,
-		Login:       user.Login,
-		LastName:    user.Lastname,
-		FirstName:   user.Firstname,
-		SurName:     user.Surname,
-		Job:         user.Job,
-		Org:         user.Org,
-		Roles:       user.RolesList,
-		Permissions: user.Permissions,
+		Id:               user.Id,
+		Login:            user.Login,
+		LastName:         user.Lastname,
+		FirstName:        user.Firstname,
+		SurName:          user.Surname,
+		Job:              user.Job,
+		Org:              user.Org,
+		Roles:            user.RolesList,
+		Permissions:      user.Permissions,
+		AvatarMimeType:   user.Avatar.MimeType,
+		AvatarBucketName: user.Avatar.BucketName,
+		AvatarFileName:   user.Avatar.FileName,
 	}, nil
 }
 

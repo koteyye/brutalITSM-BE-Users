@@ -8,6 +8,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+const toSqlErr = "SQL query not build %v"
+
 type userPostgres struct {
 	db *sqlx.DB
 }
@@ -18,17 +20,42 @@ func NewUserPostgres(db *sqlx.DB) *userPostgres {
 
 func (u userPostgres) CreateUser(user models.User) (string, error) {
 	var id string
-	query := fmt.Sprintf("select createUser($1, $2, $3, $4, $5, $6, $7, $8, $9);")
-	row := u.db.QueryRow(query, user.Login, user.Password, user.Email, user.Lastname, user.Firstname, user.Surname, user.Job, user.Org, user.Role)
+
+	query := sq.Select("createUser($1, $2, $3, $4, $5, $6, $7, $8, $9)").PlaceholderFormat(sq.Dollar)
+	sql, _, err := query.ToSql()
+	if err != nil {
+		logrus.Fatalf(toSqlErr, err)
+	}
+	row := u.db.QueryRow(sql, user.Login, user.Password, user.Email, user.Lastname, user.Firstname, user.Surname, user.Job, user.Org, user.Role)
 	if err := row.Scan(&id); err != nil {
 		return "", err
 	}
 	return id, nil
 }
 
+//var users []models.UserShortList
+//
+//query := sq.Select("p.user_id, p.last_name, p.first_name, p.sur_name,  ui.mime_type, ui.bucket_name, ui.file_name").
+//From("persons p").LeftJoin("user_img ui on p.user_id = ui.user_id").
+//Where(sq.Eq{"p.user_id": usersId}).
+//PlaceholderFormat(sq.Dollar)
+//sql, args, err := query.ToSql()
+//if err != nil {
+//logrus.Fatalf("SQL query not builde %v", err)
+//}
+//err1 := u.db.Select(&users, sql, args...)
+//return users, err1
+
 func (u userPostgres) CreateUserImg(userId string, avatar models.Avatar) (bool, error) {
-	query := fmt.Sprintf("insert into user_img(user_id, mime_type, bucket_name, file_name)\nvalues ($1, $2, $3, $4);")
-	row := u.db.QueryRow(query, userId, avatar.MimeType, avatar.BucketName, avatar.FileName)
+	query := sq.Insert("user_img").
+		Columns("user_id, mime_type, bucket_name, file_name").
+		Values(userId, avatar.MimeType, avatar.BucketName, avatar.FileName).
+		PlaceholderFormat(sq.Dollar)
+	sql, arg, err := query.ToSql()
+	if err != nil {
+		logrus.Fatalf(toSqlErr, err)
+	}
+	row := u.db.QueryRow(sql, arg...)
 	if err := row.Err(); err != nil {
 		return false, err
 	}
@@ -74,20 +101,15 @@ func (u userPostgres) CheckLogin(login string) (bool, error) {
 func (u userPostgres) GetUsers() ([]models.UserList, error) {
 	var users []models.UserList
 
-	query := fmt.Sprintf("select u.id, u.login, p.last_name, p.first_name, p.sur_name, j.name job_name, o.name org_name,\n       (select array_agg(r.name) from roles r join user_roles ur on r.id = ur.role_id where ur.user_id = u.id) role_list,\n       json_build_object('mimeType', ui.mime_type, 'bucketName', ui.bucket_name, 'fileName', ui.file_name) avatar\nfrom \"users\" u join persons p on u.id = p.user_id join jobs j on j.id = p.job_id join orgs o on o.id = p.org_id left join user_img ui on u.id = ui.user_id\nwhere u.deleted_at is null and ui.deleted_at is null;")
-	err := u.db.Select(&users, query)
+	query := sq.Select("*").From("getUserList()")
+	sql, _, err := query.ToSql()
+	if err != nil {
+		logrus.Fatalf("SQL query not builde %v", err)
+	}
+	err1 := u.db.Select(&users, sql)
+	return users, err1
 
-	return users, err
 }
-
-//func (u userPostgres) GetUserById(userId string) (models.UserList, error) {
-//	var user models.UserList
-//
-//	query := fmt.Sprintf("select u.id,\n       u.login,\n       p.last_name,\n       p.first_name,\n       p.sur_name,\n  j.name job_name,\n o.name org_name,\n       (select array_agg(r.name)\n        from roles r\n                 join user_roles ur on r.id = ur.role_id\n        where ur.user_id = u.id)                                                                              role_list,\n       json_build_object('mimeType', ui.mime_type, 'bucketName', ui.bucket_name, 'fileName', ui.file_name) avatar\nfrom \"users\" u\n         join persons p on u.id = p.user_id\n join jobs j on j.id = p.job_id join orgs o on o.id = p.org_id         left join user_img ui on u.id = ui.user_id where u.id = $1 and u.deleted_at is null and ui.deleted_at is null;")
-//	err := u.db.Get(&user, query, userId)
-//
-//	return user, err
-//}
 
 func (u userPostgres) GetRoles() ([]models.Roles, error) {
 	var roles []models.Roles
@@ -115,7 +137,7 @@ func (u userPostgres) GetUserList(usersId []string) ([]models.UserShortList, err
 
 	query := sq.Select("p.user_id, p.last_name, p.first_name, p.sur_name,  ui.mime_type, ui.bucket_name, ui.file_name").
 		From("persons p").LeftJoin("user_img ui on p.user_id = ui.user_id").
-		Where(sq.Eq{"p.user_id": usersId}).
+		Where(sq.Eq{"p.user_id": usersId, "ui.deleted_at": nil}).
 		PlaceholderFormat(sq.Dollar)
 	sql, args, err := query.ToSql()
 	if err != nil {
