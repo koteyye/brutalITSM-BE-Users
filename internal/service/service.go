@@ -33,10 +33,17 @@ type Search interface {
 	SearchOrg(string) ([]models.SearchResult, error)
 }
 
+type Settings interface {
+	AddSettings(set models.Settings) ([]string, error)
+	DeleteSettings(id string) (bool, error)
+	EditSettings(setId string, set models.Settings) (string, error)
+}
+
 type Service struct {
 	Authorization
 	User
 	Search
+	Settings
 }
 
 func NewService(repos *postgres.Repository, s3 *minio.Client) *Service {
@@ -44,5 +51,6 @@ func NewService(repos *postgres.Repository, s3 *minio.Client) *Service {
 		Authorization: NewAuthService(repos.Authorization),
 		User:          NewUserService(repos.User, s3),
 		Search:        NewSearchService(repos.Search),
+		Settings:      NewSettingsService(repos.Settings),
 	}
 }

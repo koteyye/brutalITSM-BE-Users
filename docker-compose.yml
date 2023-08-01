@@ -1,0 +1,67 @@
+version: "3.9"
+
+x-minio-common: &minio-common
+  image: quay.io/minio/minio:RELEASE.2023-02-27T18-10-45Z
+  command: server --console-address ":9001" /data
+    # environment:
+    # MINIO_ROOT_USER: minioadmin
+  # MINIO_ROOT_PASSWORD: minioadmin
+  healthcheck:
+    test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+    interval: 30s
+    timeout: 20s
+    retries: 3
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: "brutal-itsm-user"
+      POSTGRES_USER: "brutal"
+      POSTGRES_PASSWORD: "zKMNQj7pDTDpfpAm"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - ../2. Init Database:/docker-entrypoint-initdb.d
+      - .:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U brutal -d brutal-itsm-user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+    networks:
+      - mainnetwork
+  minio:
+    <<: *minio-common
+    hostname: brutal-itsm-minio
+    volumes:
+      - data1-1:/data
+    networks:
+      - mainnetwork
+    ports:
+      - "9001:9001"
+  restapi:
+    depends_on:
+      - minio
+      - postgres
+    build:
+      dockerfile: Dockerfile
+      context: ./
+    networks:
+      - mainnetwork
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+volumes:
+  data1-1:
+networks:
+  mainnetwork:
+    driver: bridge

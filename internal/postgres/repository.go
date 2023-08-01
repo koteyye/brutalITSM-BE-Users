@@ -30,10 +30,17 @@ type Search interface {
 	SearchOrg(string) ([]models.SearchResult, error)
 }
 
+type Settings interface {
+	AddSettings(set models.Settings) ([]string, error)
+	DeleteSettings(id string) (bool, error)
+	EditSettings(id string, set models.Settings) (bool, error)
+}
+
 type Repository struct {
 	Authorization
 	User
 	Search
+	Settings
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
@@ -41,5 +48,6 @@ func NewRepository(db *sqlx.DB) *Repository {
 		Authorization: NewAuthPostgres(db),
 		User:          NewUserPostgres(db),
 		Search:        NewSearchPostgres(db),
+		Settings:      NewSettingsPostgres(db),
 	}
 }

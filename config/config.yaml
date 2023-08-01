@@ -10,4 +10,4 @@ storages:
     use_env: true
     dsn: ""
   minio:
-    url: "172.20.0.2:9000"
+    url: "minio:9000"

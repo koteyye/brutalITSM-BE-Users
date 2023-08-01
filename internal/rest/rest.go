@@ -53,6 +53,12 @@ func (h *Rest) InitRoutes() *gin.Engine {
 			search.GET("/job/:jobName", h.setRoleAdmin, h.checkRights, h.searchJob)
 			search.GET("/org/:orgName", h.setRoleAdmin, h.checkRights, h.searchOrg)
 		}
+		settings := api.Group("/settings")
+		{
+			settings.POST("/add", h.setRoleAdmin, h.checkRights)
+			settings.DELETE("/delete", h.setRoleAdmin, h.checkRights)
+			settings.PUT("/edit", h.setRoleAdmin, h.checkRights)
+		}
 	}
 
 	return router
