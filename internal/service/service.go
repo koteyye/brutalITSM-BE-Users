@@ -34,8 +34,8 @@ type Search interface {
 }
 
 type Settings interface {
-	AddSettings(set models.Settings) ([]string, error)
-	DeleteSettings(id string) (bool, error)
+	AddSettings(set []models.Settings) ([]models.AddResult, error)
+	DeleteSettings(id []string) (bool, error)
 	EditSettings(setId string, set models.Settings) (string, error)
 }
 

@@ -55,7 +55,7 @@ func (h *Rest) InitRoutes() *gin.Engine {
 		}
 		settings := api.Group("/settings")
 		{
-			settings.POST("/add", h.setRoleAdmin, h.checkRights)
+			settings.POST("/add", h.setRoleAdmin, h.checkRights, h.addSettings)
 			settings.DELETE("/delete", h.setRoleAdmin, h.checkRights)
 			settings.PUT("/edit", h.setRoleAdmin, h.checkRights)
 		}

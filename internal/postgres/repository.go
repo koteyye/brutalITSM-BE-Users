@@ -3,6 +3,7 @@ package postgres
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/koteyye/brutalITSM-BE-Users/internal/models"
+	"github.com/lib/pq"
 )
 
 type Authorization interface {
@@ -31,9 +32,11 @@ type Search interface {
 }
 
 type Settings interface {
-	AddSettings(set models.Settings) ([]string, error)
-	DeleteSettings(id string) (bool, error)
-	EditSettings(id string, set models.Settings) (bool, error)
+	AddOrg(orgNames pq.StringArray) ([]models.AddResult, error)
+	AddJob(jobNames pq.StringArray) ([]models.AddResult, error)
+	AddRole(roles []models.RolesStr) ([]models.AddResult, error)
+	DeleteSettings(id []string) (bool, error)
+	EditSettings(id []string, set models.Settings) (bool, error)
 }
 
 type Repository struct {
