@@ -41,6 +41,9 @@ func GetConfig() (*Config, error) {
 	var configPath string
 	flag.StringVar(&configPath, "config", "config.yaml", "Used for set path to config file.")
 	flag.Parse()
+	if configPath == "" {
+		configPath = "config/config.yaml"
+	}
 
 	var cfg Config
 	data, err := os.ReadFile(filepath.Clean("config/config.yaml"))

@@ -36,7 +36,9 @@ type Settings interface {
 	AddJob(jobNames pq.StringArray) ([]models.AddResult, error)
 	AddRole(roles []models.RolesStr) ([]models.AddResult, error)
 	DeleteSettings(id []string) (bool, error)
-	EditSettings(id []string, set models.Settings) (bool, error)
+	EditJob(jobs []models.EditPq) ([]models.AddResult, error)
+	EditOrg(orgs []models.EditPq) ([]models.AddResult, error)
+	EditRole(roles []models.RolesStr) ([]models.AddResult, error)
 }
 
 type Repository struct {
