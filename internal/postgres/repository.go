@@ -35,7 +35,7 @@ type Settings interface {
 	AddOrg(orgNames pq.StringArray) ([]models.AddResult, error)
 	AddJob(jobNames pq.StringArray) ([]models.AddResult, error)
 	AddRole(roles []models.RolesStr) ([]models.AddResult, error)
-	DeleteSettings(id []string) (bool, error)
+	DeleteSettings(id []string, table string) error
 	EditJob(jobs []models.EditPq) ([]models.AddResult, error)
 	EditOrg(orgs []models.EditPq) ([]models.AddResult, error)
 	EditRole(roles []models.RolesStr) ([]models.AddResult, error)

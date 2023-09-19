@@ -157,9 +157,15 @@ func checkDuplicateKey(err error) bool {
 	return false
 }
 
-func (s SettingsPostgres) DeleteSettings(id []string) (bool, error) {
-	//TODO implement me
-	panic("implement me")
+func (s SettingsPostgres) DeleteSettings(id []string, table string) error {
+	var deleteVar models.EditPq
+	query := sq.Delete(table).Where(sq.Eq{"id": id}).PlaceholderFormat(sq.Dollar).Suffix("RETURNING id")
+	sql, arg, err := query.ToSql()
+	if err != nil {
+		logrus.Fatalf(toSqlErr, err)
+	}
+	row := s.db.QueryRow(sql, arg...)
+	return row.Scan(&deleteVar.Id)
 }
 
 func (s SettingsPostgres) EditJob(jobs []models.EditPq) ([]models.AddResult, error) {

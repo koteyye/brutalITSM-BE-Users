@@ -4,9 +4,11 @@ import (
 	"errors"
 	"github.com/koteyye/brutalITSM-BE-Users/internal/models"
 	"github.com/koteyye/brutalITSM-BE-Users/internal/postgres"
+	"strings"
 )
 
 var AllDuplicate = errors.New("all duplicate")
+var NoSettingsObject = errors.New("указанный объект отсутствует")
 
 type SettingsService struct {
 	repo postgres.Settings
@@ -78,8 +80,26 @@ func (s SettingsService) AddSettings(set []models.Settings) ([]models.AddResult,
 	return result, nil
 }
 
-func (s SettingsService) DeleteSettings(id []string) (bool, error) {
-	return s.DeleteSettings(id)
+func (s SettingsService) DeleteSettings(id []string, obj string) error {
+	strings.ToLower(obj)
+	var table string
+
+	switch obj {
+	case "job":
+		table = "jobs"
+		break
+	case "org":
+		table = "orgs"
+		break
+	case "role":
+		table = "roles"
+		break
+	default:
+		return NoSettingsObject
+	}
+
+	err := s.repo.DeleteSettings(id, table)
+	return err
 }
 
 func (s SettingsService) EditSettings(set []models.Settings) ([]models.AddResult, error) {
